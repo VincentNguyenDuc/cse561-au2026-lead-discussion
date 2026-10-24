@@ -1,0 +1,205 @@
+/* Dark blue theme, layered on top of reveal.js black.css */
+
+:root {
+  --bg: #0b1220;
+  --bg-glow: #12213f;
+  --surface: #131d33;
+  --border: #23314f;
+  --text: #d6e0f0;
+  --muted: #8395b8;
+  --heading: #f3f7ff;
+  --accent: #4f8cff;
+  --accent-light: #8ec5ff;
+
+  --r-background-color: var(--bg);
+  --r-main-font: "Inter", system-ui, sans-serif;
+  --r-main-font-size: 34px;
+  --r-main-color: var(--text);
+  --r-heading-font: "Inter", system-ui, sans-serif;
+  --r-heading-color: var(--heading);
+  --r-heading-text-transform: none;
+  --r-heading-font-weight: 700;
+  --r-heading-letter-spacing: -0.02em;
+  --r-heading1-size: 2.4em;
+  --r-heading2-size: 1.5em;
+  --r-heading3-size: 1.1em;
+  --r-code-font: "JetBrains Mono", ui-monospace, monospace;
+  --r-link-color: var(--accent-light);
+  --r-link-color-hover: #ffffff;
+  --r-link-color-dark: var(--accent);
+  --r-selection-background-color: rgba(79, 140, 255, 0.5);
+}
+
+.reveal-viewport {
+  background: radial-gradient(ellipse at 85% 0%, var(--bg-glow) 0%, var(--bg) 60%);
+}
+
+/* Content slides: left-aligned, heading with an accent bar */
+.reveal .slides section {
+  text-align: left;
+}
+
+.reveal h2 {
+  padding-bottom: 0.35em;
+  margin-bottom: 0.9em;
+  position: relative;
+}
+
+.reveal h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.5em;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+}
+
+.reveal h3 {
+  color: var(--accent-light);
+}
+
+.reveal ul,
+.reveal ol {
+  display: block;
+  margin-left: 1.1em;
+}
+
+.reveal li {
+  margin: 0.35em 0;
+}
+
+.reveal li::marker {
+  color: var(--accent);
+}
+
+.reveal strong {
+  color: var(--accent-light);
+}
+
+.reveal em {
+  color: var(--heading);
+}
+
+/* Code */
+.reveal code {
+  font-size: 0.85em;
+}
+
+.reveal :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--accent-light);
+}
+
+.reveal pre {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.reveal pre code.hljs {
+  padding: 0.8em 1em;
+  background: var(--surface);
+}
+
+/* Tables */
+.reveal table {
+  margin: 0;
+  font-size: 0.75em;
+}
+
+.reveal table th {
+  color: var(--heading);
+  background: var(--surface);
+}
+
+.reveal table th,
+.reveal table td {
+  padding: 0.4em 0.8em;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Blockquotes */
+.reveal blockquote {
+  width: auto;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  font-style: normal;
+  color: var(--heading);
+  background: var(--surface);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  box-shadow: none;
+}
+
+/* Title slide: <!-- .slide: class="title" --> */
+.reveal .slides section.title {
+  text-align: center;
+}
+
+.reveal section.title h1 {
+  margin-bottom: 0.3em;
+  background: linear-gradient(90deg, var(--heading), var(--accent-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.reveal section.title h1 + p {
+  font-size: 1.05em;
+  color: var(--text);
+  margin-bottom: 1.6em;
+}
+
+.reveal section.title p {
+  color: var(--muted);
+  font-size: 0.8em;
+  margin: 0.3em 0;
+}
+
+/* Section divider slide: <!-- .slide: class="section" --> */
+.reveal .slides section.section {
+  text-align: center;
+}
+
+.reveal section.section h2 {
+  font-size: 2em;
+}
+
+.reveal section.section h2::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Small muted text, e.g. citations */
+.reveal small,
+.reveal .muted {
+  color: var(--muted);
+}
+
+/* Chrome */
+.reveal .controls {
+  color: var(--accent);
+}
+
+.reveal .progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent);
+}
+
+.reveal .slide-number {
+  font-family: var(--r-code-font);
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  left: 16px;
+  right: auto;
+  bottom: 16px;
+}

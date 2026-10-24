@@ -1,0 +1,10 @@
+pages:
+  image: alpine:latest
+  stage: deploy
+  script:
+    - echo "Publishing public/"
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
