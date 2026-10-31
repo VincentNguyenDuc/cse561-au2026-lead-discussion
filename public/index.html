@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
   <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="diagram.css">
 </head>
 <body>
   <button id="minimap-toggle" aria-controls="minimap" aria-expanded="false" title="Toggle slide list (M)">
@@ -32,6 +33,162 @@
     </div>
   </div>
 
+  <!-- Diagrams, placed on slides by diagram.js; data-id names what fragments can highlight -->
+  <svg width="0" height="0" style="position: absolute">
+    <defs>
+      <marker id="net-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="#8395b8"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- Google's global network (Figure 1) -->
+  <template id="net-topology">
+    <div class="net" data-w="1200" data-h="690">
+      <div class="region b4" style="left:30px;top:90px;width:530px;height:250px"></div>
+      <div class="region b2" style="left:640px;top:90px;width:530px;height:250px"></div>
+      <div class="region cl" data-id="cluster-1" style="left:150px;top:440px;width:300px;height:210px"></div>
+      <div class="region cl" data-id="cluster-2" style="left:750px;top:440px;width:300px;height:210px"></div>
+      <svg width="1200" height="690">
+        <line class="up b4" data-id="up up-1" x1="300" y1="440" x2="140" y2="262"/>
+        <line class="up b2" data-id="up up-1" x1="300" y1="440" x2="760" y2="262"/>
+        <line class="up b2" data-id="up up-1" x1="300" y1="440" x2="1040" y2="262"/>
+        <line class="up b4" data-id="up up-2" x1="900" y1="440" x2="450" y2="262"/>
+        <line class="up b2" data-id="up up-2" x1="900" y1="440" x2="760" y2="262"/>
+        <line class="up b2" data-id="up up-2" x1="900" y1="440" x2="1040" y2="262"/>
+        <line class="bundle b4" data-id="b4-bundle" x1="140" y1="262" x2="295" y2="172"/>
+        <line class="bundle b4" data-id="b4-bundle" x1="295" y1="172" x2="450" y2="262"/>
+        <line class="bundle b4" data-id="b4-bundle" x1="140" y1="262" x2="450" y2="262"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="760" y1="172" x2="1040" y2="172"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="760" y1="262" x2="760" y2="172"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="1040" y1="262" x2="1040" y2="172"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="760" y1="262" x2="1040" y2="172"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="1040" y1="262" x2="760" y2="172"/>
+        <line class="peer ext" data-id="peer" x1="760" y1="172" x2="1040" y2="38"/>
+        <line class="peer ext" data-id="peer" x1="1040" y1="172" x2="1040" y2="38"/>
+        <g class="cl" transform="translate(150 0)">
+          <path class="fab" d="M150 462L120 490M150 462L170 490M150 462L220 490M150 462L270 490M120 508L120 545M120 508L170 545M120 508L220 545M120 508L270 545M170 508L120 545M170 508L170 545M170 508L220 545M170 508L270 545M220 508L120 545M220 508L170 545M220 508L220 545M220 508L270 545M270 508L120 545M270 508L170 545M270 508L220 545M270 508L270 545M120 563L120 600M120 563L170 600M170 563L120 600M170 563L170 600M220 563L220 600M220 563L270 600M270 563L220 600M270 563L270 600"/>
+          <rect class="sw-r" x="102" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="490" width="36" height="18" rx="4"/>
+          <rect class="sw-r" x="102" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="545" width="36" height="18" rx="4"/>
+          <rect class="sw-r" x="102" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="600" width="36" height="18" rx="4"/>
+        </g>
+        <g class="cl" transform="translate(750 0)">
+          <path class="fab" d="M150 462L120 490M150 462L170 490M150 462L220 490M150 462L270 490M120 508L120 545M120 508L170 545M120 508L220 545M120 508L270 545M170 508L120 545M170 508L170 545M170 508L220 545M170 508L270 545M220 508L120 545M220 508L170 545M220 508L220 545M220 508L270 545M270 508L120 545M270 508L170 545M270 508L220 545M270 508L270 545M120 563L120 600M120 563L170 600M170 563L120 600M170 563L170 600M220 563L220 600M220 563L270 600M270 563L220 600M270 563L270 600"/>
+          <rect class="sw-r" x="102" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="490" width="36" height="18" rx="4"/>
+          <rect class="sw-r" x="102" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="545" width="36" height="18" rx="4"/>
+          <rect class="sw-r" x="102" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="600" width="36" height="18" rx="4"/>
+        </g>
+      </svg>
+      <div class="n b4" data-id="b4br b4br-a" style="left:80px;top:240px">B4BR</div>
+      <div class="n b4" data-id="b4br b4br-b" style="left:235px;top:150px">B4BR</div>
+      <div class="n b4" data-id="b4br b4br-c" style="left:390px;top:240px">B4BR</div>
+      <div class="n b2" data-id="b2cr" style="left:700px;top:150px">B2CR</div>
+      <div class="n b2" data-id="b2cr" style="left:980px;top:150px">B2CR</div>
+      <div class="n b2" data-id="b2br" style="left:700px;top:240px">B2BR</div>
+      <div class="n b2" data-id="b2br" style="left:980px;top:240px">B2BR</div>
+      <div class="n pill ext" data-id="internet" style="left:940px;top:16px;width:200px">Internet · peers &amp; ISPs</div>
+      <div class="n cl" data-id="car car-1" style="left:240px;top:418px">CAR</div>
+      <div class="n cl" data-id="car car-2" style="left:840px;top:418px">CAR</div>
+      <div class="lbl c i" style="left:295px;top:272px">bundle</div>
+      <div class="lbl c i" style="left:900px;top:146px">bundle</div>
+      <div class="lbl" style="left:170px;top:491px">spine</div>
+      <div class="lbl" style="left:170px;top:546px">superblock</div>
+      <div class="lbl" style="left:170px;top:601px">ToR</div>
+      <div class="lbl" style="left:770px;top:491px">spine</div>
+      <div class="lbl" style="left:770px;top:546px">superblock</div>
+      <div class="lbl" style="left:770px;top:601px">ToR</div>
+      <div class="lbl c" style="left:600px;top:515px;font-size:28px;letter-spacing:6px">···</div>
+      <div class="lbl c" style="left:600px;top:560px">more clusters</div>
+      <div class="badge b4" style="left:50px;top:76px">B4 · internal WAN</div>
+      <div class="badge b2" style="left:660px;top:76px">B2 · user-facing WAN</div>
+      <div class="badge cl" style="left:170px;top:635px">Cluster · Clos fabric</div>
+      <div class="badge cl" style="left:770px;top:635px">Cluster · Clos fabric</div>
+    </div>
+  </template>
+
+  <!-- Control plane of a cluster fabric or a B4BR -->
+  <template id="net-fabric-cp">
+    <div class="net" data-w="1200" data-h="480">
+      <div class="region cp" style="left:20px;top:30px;width:940px;height:110px"></div>
+      <div class="region group cp" data-id="ofc" style="left:300px;top:50px;width:380px;height:80px"></div>
+      <div class="region cpn" style="left:20px;top:190px;width:1160px;height:72px"></div>
+      <div class="region cl" style="left:20px;top:320px;width:1160px;height:140px"></div>
+      <svg width="1200" height="480">
+        <line class="flow cp" data-id="fc-ofc" x1="230" y1="90" x2="298" y2="90" marker-end="url(#net-arrow)"/>
+        <line class="flow cp" data-id="ra-ofc" x1="760" y1="90" x2="682" y2="90" marker-end="url(#net-arrow)"/>
+        <line class="flow ext" data-id="ra-peers" x1="930" y1="90" x2="1000" y2="90"/>
+        <line class="drop cpn" data-id="cpn-link" x1="145" y1="118" x2="145" y2="190"/>
+        <line class="drop cpn" data-id="cpn-link" x1="401" y1="118" x2="401" y2="190"/>
+        <line class="drop cpn" data-id="cpn-link" x1="579" y1="118" x2="579" y2="190"/>
+        <line class="drop cpn" data-id="cpn-link" x1="845" y1="118" x2="845" y2="190"/>
+        <line class="drop cpn" data-id="cpn-link" x1="135" y1="262" x2="135" y2="352"/>
+        <line class="drop cpn" data-id="cpn-link" x1="320" y1="262" x2="320" y2="352"/>
+        <line class="drop cpn" data-id="cpn-link" x1="505" y1="262" x2="505" y2="352"/>
+        <line class="drop cpn" data-id="cpn-link" x1="690" y1="262" x2="690" y2="352"/>
+        <line class="drop cpn" data-id="cpn-link" x1="875" y1="262" x2="875" y2="352"/>
+        <line class="drop cpn" data-id="cpn-link" x1="1060" y1="262" x2="1060" y2="352"/>
+      </svg>
+      <div class="n cp" data-id="fc" style="left:60px;top:62px;width:170px;height:56px"><b>FC</b><small>paths in the fabric</small></div>
+      <div class="n cp" data-id="ofc ofc-1" style="left:316px;top:62px;width:170px;height:56px"><b>OFC #1</b><small>master</small></div>
+      <div class="n cp" data-id="ofc ofc-2" style="left:494px;top:62px;width:170px;height:56px"><b>OFC #2</b><small>standby</small></div>
+      <div class="n cp" data-id="ra" style="left:760px;top:62px;width:170px;height:56px"><b>RA</b><small>BGP · IS-IS routes</small></div>
+      <div class="n ext" data-id="peers" style="left:1000px;top:62px;width:170px;height:56px"><b>Border routers</b><small>eBGP · IS-IS</small></div>
+      <div class="n cpn" data-id="cpn-r1" style="left:470px;top:204px;width:130px">CPN router</div>
+      <div class="n cpn" data-id="cpn-r2" style="left:620px;top:204px;width:130px">CPN router</div>
+      <div class="n cl" data-id="sw sw-1" style="left:60px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl" data-id="sw sw-2" style="left:245px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl" data-id="sw sw-3" style="left:430px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl" data-id="sw sw-4" style="left:615px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl" data-id="sw sw-5" style="left:800px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl" data-id="sw sw-6" style="left:985px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="lbl c" style="left:264px;top:68px">paths</div>
+      <div class="lbl c" style="left:721px;top:68px">routes</div>
+      <div class="lbl" style="left:766px;top:218px">VRRP pair</div>
+      <div class="badge cp" style="left:40px;top:16px">control plane · replicated</div>
+      <div class="badge cpn" style="left:40px;top:176px">CPN · out-of-band control network</div>
+      <div class="badge cl" style="left:40px;top:306px">data plane · fabric switches</div>
+    </div>
+  </template>
+
+  <!-- B4 WAN control plane -->
+  <template id="net-b4-cp">
+    <div class="net" data-w="1200" data-h="490">
+      <div class="region cp" style="left:20px;top:40px;width:1160px;height:250px"></div>
+      <div class="region b4" style="left:20px;top:330px;width:620px;height:140px"></div>
+      <div class="region b2" style="left:780px;top:330px;width:400px;height:140px"></div>
+      <svg width="1200" height="490">
+        <line class="flow cp" data-id="gw-topo" x1="500" y1="228" x2="300" y2="128" marker-end="url(#net-arrow)"/>
+        <line class="flow cp" data-id="topo-te" x1="320" y1="98" x2="498" y2="98" marker-end="url(#net-arrow)"/>
+        <line class="flow cp" data-id="bwe-te" x1="880" y1="98" x2="702" y2="98" marker-end="url(#net-arrow)"/>
+        <line class="flow cp" data-id="te-gw" x1="600" y1="126" x2="600" y2="198" marker-end="url(#net-arrow)"/>
+        <line class="drop cp" data-id="gw-b4br" x1="600" y1="256" x2="120" y2="385"/>
+        <line class="drop cp" data-id="gw-b4br" x1="600" y1="256" x2="310" y2="385"/>
+        <line class="drop cp" data-id="gw-b4br" x1="600" y1="256" x2="500" y2="385"/>
+        <line class="bundle b4" data-id="b4-bundle" x1="120" y1="407" x2="310" y2="407"/>
+        <line class="bundle b4" data-id="b4-bundle" x1="310" y1="407" x2="500" y2="407"/>
+        <line class="bundle b2" data-id="b2-bundle" x1="880" y1="407" x2="1080" y2="407"/>
+        <line class="flow shift b2" data-id="shift" x1="562" y1="407" x2="818" y2="407" marker-end="url(#net-arrow)"/>
+      </svg>
+      <div class="n cp" data-id="topo" style="left:120px;top:70px;width:200px;height:56px"><b>Topology Modeler</b><small>WAN topology model</small></div>
+      <div class="n cp" data-id="te" style="left:500px;top:70px;width:200px;height:56px"><b>TE Server</b><small>site-level TE paths</small></div>
+      <div class="n cp" data-id="bwe" style="left:880px;top:70px;width:200px;height:56px"><b>BwE</b><small>demand · app rate limits</small></div>
+      <div class="n cp" data-id="gw" style="left:500px;top:200px;width:200px;height:56px"><b>B4 Gateway</b><small>reads &amp; programs B4BRs</small></div>
+      <div class="n b4" data-id="b4br" style="left:60px;top:385px">B4BR</div>
+      <div class="n b4" data-id="b4br" style="left:250px;top:385px">B4BR</div>
+      <div class="n b4" data-id="b4br" style="left:440px;top:385px">B4BR</div>
+      <div class="n b2" data-id="b2br" style="left:820px;top:385px">B2BR</div>
+      <div class="n b2" data-id="b2br" style="left:1020px;top:385px">B2BR</div>
+      <div class="lbl" style="left:300px;top:190px">network state</div>
+      <div class="lbl c" style="left:409px;top:74px">topology</div>
+      <div class="lbl c" style="left:791px;top:74px">demand</div>
+      <div class="lbl" style="left:612px;top:154px">TE paths</div>
+      <div class="lbl c" style="left:690px;top:383px">fallback</div>
+      <div class="badge cp" style="left:40px;top:26px">B4 WAN control · centralized TE</div>
+      <div class="badge b4" style="left:40px;top:316px">B4 · B4BRs</div>
+      <div class="badge b2" style="left:800px;top:316px">B2 · user-facing WAN</div>
+    </div>
+  </template>
+
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/markdown/markdown.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
@@ -44,5 +201,6 @@
     });
   </script>
   <script src="minimap.js"></script>
+  <script src="diagram.js"></script>
 </body>
 </html>

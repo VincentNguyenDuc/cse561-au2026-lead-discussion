@@ -64,6 +64,7 @@
 .reveal ol {
   display: block;
   margin-left: 1.1em;
+  font-size: 0.8em;
 }
 
 .reveal li {
@@ -128,6 +129,7 @@
 /* Blockquotes */
 .reveal blockquote {
   width: auto;
+  font-size: 0.8em;
   margin: 1em 0;
   padding: 0.5em 1em;
   font-style: normal;
@@ -175,6 +177,78 @@
 .reveal section.section h2::after {
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* Case-study slide with a diagram: <!-- .slide: class="case" --> */
+.reveal section.case h2 {
+  font-size: 1.15em;
+  margin-bottom: 0.5em;
+}
+
+.reveal p.caption {
+  margin-top: 0.8em;
+  font-size: 0.55em;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Three columns of lists: <div class="cols3"> */
+.reveal .cols3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2em;
+  font-size: 0.52em;
+}
+
+.reveal .cols3 h3 {
+  margin-bottom: 0.5em;
+  font-size: 1.4em;
+}
+
+.reveal .cols3 ul {
+  margin-left: 1.1em;
+  font-size: 1em;
+}
+
+/* Horizontal bars: <div class="bars"><div class="bar"><span/><i style="--v:30%"/><b/></div></div> */
+.reveal .bars {
+  display: grid;
+  gap: 0.6em;
+  margin: 0.8em 0 1em;
+  font-size: 0.6em;
+}
+
+.reveal .bar {
+  display: grid;
+  grid-template-columns: 8em 1fr 4em;
+  align-items: center;
+  gap: 0.8em;
+}
+
+.reveal .bar i {
+  --c: var(--accent);
+  position: relative;
+  height: 1.4em;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--c) var(--v), var(--surface) var(--v));
+}
+
+/* 50% mark: below this residual capacity a MOp needs a drain */
+.reveal .bar i::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.3em;
+  bottom: -0.3em;
+  border-left: 2px dashed var(--muted);
+}
+
+.reveal .bar.bad i {
+  --c: #ff6b6b;
+}
+
+.reveal .bar b {
+  color: var(--heading);
 }
 
 /* Small muted text, e.g. citations */
@@ -327,4 +401,8 @@
   left: 16px;
   right: auto;
   bottom: 16px;
+}
+
+.reveal p.lead {
+  font-size: 0.8em;
 }

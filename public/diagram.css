@@ -1,0 +1,229 @@
+/* Network diagrams (diagram.js). Coordinates are in diagram px; the slot scales them down. */
+
+.reveal .net-slot {
+  position: relative;
+  margin: 0 auto;
+}
+
+.net {
+  --c: var(--muted);
+  --fail: #ff6b6b;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  font-family: var(--r-main-font);
+  font-size: 16px;
+  line-height: 1.2;
+  text-align: left;
+  color: var(--text);
+}
+
+.net > div,
+.net > svg {
+  position: absolute;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.net > svg {
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+
+/* Colors per network */
+.net .b4 { --c: #b197fc; }
+.net .b2 { --c: #4f8cff; }
+.net .cl { --c: #f2b866; }
+.net .cp { --c: #5fd4c4; }
+.net .cpn { --c: #f0abfc; }
+.net .ext { --c: var(--muted); }
+
+.net .region {
+  border: 1.5px solid color-mix(in srgb, var(--c) 50%, transparent);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--c) 7%, transparent);
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.net .region.group {
+  border-style: dashed;
+  border-radius: 14px;
+  background: none;
+}
+
+.net .badge {
+  height: 30px;
+  padding: 0 16px;
+  border: 1.5px solid var(--c);
+  border-radius: 15px;
+  background: var(--bg);
+  color: var(--c);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 27px;
+  white-space: nowrap;
+}
+
+.net .n {
+  width: 120px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 2px solid var(--c);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--heading);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.net .n b {
+  font-weight: 700;
+}
+
+.net .n small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.net .n.pill {
+  border-width: 1.5px;
+  border-radius: 22px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.net .chip {
+  padding: 1px 8px;
+  border: 1px solid #5fd4c4;
+  border-radius: 8px;
+  color: #5fd4c4;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.net .lbl {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.net .lbl.c { transform: translateX(-50%); }
+.net .lbl.i { font-style: italic; }
+
+/* Links */
+.net line,
+.net path {
+  stroke: var(--c);
+  fill: none;
+}
+
+.net .bundle { stroke-width: 4; stroke-linecap: round; opacity: 0.85; }
+.net .up { stroke-width: 2; opacity: 0.7; }
+.net .drop { stroke-width: 2; opacity: 0.55; }
+.net .flow { stroke-width: 2; }
+.net .peer { stroke-width: 2; stroke-dasharray: 5 5; }
+.net .shift { stroke-width: 3; stroke-dasharray: 8 6; }
+.net .fab { stroke-width: 1; opacity: 0.45; }
+
+.net .sw-r {
+  fill: var(--surface);
+  stroke: var(--c);
+  stroke-width: 1.5;
+}
+
+/* Highlight states, set by diagram.js */
+.net .n,
+.net line,
+.net path,
+.net rect {
+  transition: opacity 0.3s, border-color 0.3s, stroke 0.3s, box-shadow 0.3s, background 0.3s;
+}
+
+.net.focus :is(line, path, rect):not(.hl, .fail) {
+  opacity: 0.3;
+}
+
+/* Dim nodes without making them see-through, so links stay hidden behind them */
+.net.focus .n:not(.hl, .fail) {
+  border-color: color-mix(in srgb, var(--c) 30%, var(--surface));
+}
+
+.net.focus .n:not(.hl, .fail) > *,
+.net.focus .n:not(.hl, .fail):not(:has(*)) {
+  color: color-mix(in srgb, var(--heading) 30%, var(--surface));
+}
+
+.net.focus .n:not(.hl, .fail) :is(small, .chip) {
+  opacity: 0.4;
+}
+
+.net .hl {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent),
+              0 0 28px color-mix(in srgb, var(--c) 60%, transparent);
+}
+
+.net .fail {
+  --c: var(--fail);
+}
+
+.net .n.fail {
+  background: color-mix(in srgb, var(--fail) 18%, var(--surface));
+  box-shadow: 0 0 24px color-mix(in srgb, var(--fail) 50%, transparent);
+}
+
+.net :is(line, path).hl {
+  stroke-width: 4;
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--c));
+}
+
+.net :is(line, path).fail {
+  stroke-width: 3;
+  stroke-dasharray: 6 5;
+  opacity: 1;
+}
+
+/* Step captions under a diagram: stacked, one visible at a time */
+.reveal ol.steps {
+  display: grid;
+  max-width: 860px;
+  margin: 0.7em auto 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.58em;
+}
+
+.reveal ol.steps li {
+  grid-area: 1 / 1;
+  position: relative;
+  min-height: 2.6em;
+  margin: 0;
+  padding-left: 2.2em;
+}
+
+.reveal ol.steps li[data-n]::before {
+  content: attr(data-n);
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  width: 1.5em;
+  height: 1.5em;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 700;
+}
+
+.reveal ol.steps b {
+  color: var(--accent-light);
+}
