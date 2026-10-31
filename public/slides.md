@@ -42,15 +42,45 @@ The conclusion is counter-intuitive: the data says change causes failures, yet t
 
 ---
 
+<!-- .slide: class="case" -->
+
 ## Three networks
 
-<div class="net-slot" data-net="topology" data-scale="0.68"></div>
+<div class="net-slot" data-net="topology" data-scale="0.62"></div>
+
+<ol class="steps">
+<li class="fragment fade-out" data-fragment-index="0">Clusters, plus two WANs that connect them. Hover any box for details</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="fabric cluster-1 cluster-2">Each <b>cluster</b> is a multi-stage Clos fabric of merchant-silicon switches: ToR, superblock, spine</li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="car up">Its <b>CAR</b> (cluster aggregation router) connects it to both WANs: one B4BR and two B2BRs</li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="b4br b4-bundle">On <b>B4</b>, B4BRs in different metros are linked directly by bundles of many physical links</li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-hl="b2br b2cr b2-bundle internet peer"><b>B2</b> adds a core: B2CRs link the B2BRs and the edge routers that peer with ISPs</li>
+<li class="fragment current-visible" data-fragment-index="4" data-n="5" data-hl="path-user internet b2cr-2 b2br-2 car-1 fabric-1">A <b>user request</b>: Internet → B2CR → B2BR → CAR → a front-end in the cluster</li>
+<li class="fragment current-visible" data-fragment-index="5" data-n="6" data-hl="path-copy car-1 car-2 b4br-a b4br-c fabric-1 fabric-2">An <b>internal copy</b>: CAR → B4BR → bundle → B4BR → CAR. Most data-center traffic takes this route</li>
+<li class="fragment current-visible" data-fragment-index="6" data-n="7" data-hl="path-fallback car-1 car-2 b2br-1 fabric-1 fabric-2" data-fail="b4br b4-bundle">If <b>B4 fails</b>, CARs send that traffic over B2 instead, which B2 must now absorb</li>
+</ol>
 
 Note:
-Clusters are multi-stage Clos fabrics of merchant-silicon switches (ToR, superblocks, spine).
-Each cluster's CAR (cluster aggregation router) connects to one B4BR and two B2BRs.
-B4 carries cluster-to-cluster traffic; B2 carries user traffic and peers with the Internet.
 WAN links are bundles: many physical links aggregated between two routers.
+Several generations of cluster fabric coexist. In older ones the CAR is a separate Clos fabric; in the newest, some fabric blocks act as the CAR.
+B4 has no core routers: with only a few dozen sites, B4BRs link to each other directly and also carry transit traffic.
+The fallback in step 7 is exactly what overloads B2 in CPN-1 and Casc-1 later.
+
+---
+
+## Why two WANs?
+
+<div class="cols2">
+<div><h3>B2 has to be ordinary</h3><ul><li>Peers with many networks and vendors, so it needs <strong>many protocols</strong></li><li>Reaches users everywhere, so its topology is <strong>dense</strong></li><li>Carries user traffic, so it needs the <strong>highest availability</strong></li></ul></div>
+<div><h3>B4 can break the rules</h3><ul><li><strong>Elastic</strong> bulk copies can live with a temporary bandwidth cut</li><li>Only a <strong>few dozen</strong> sites, so central control works</li><li>Google owns <strong>both ends</strong>, so it rate-limits at the edge instead of overprovisioning</li><li>Typical WANs run at 30–40%, which costs <strong>2–3×</strong>; B4 runs busy links near 100%</li></ul></div>
+</div>
+
+<p class="caption">Jain et al., "B4: Experience with a Globally-Deployed Software Defined WAN", SIGCOMM 2013 (reference [18])</p>
+
+Note:
+B4 was originally designed as a low-cost backend backbone for bulk copy traffic, and later became critical infrastructure.
+By 2013 B4 carried more than 90% of internal application traffic, and more traffic than the public-facing WAN.
+B4's traffic classes, in increasing volume and decreasing priority: user data copies, remote storage access, large-scale data pushes.
+This explains later findings: B4 failures last longer (no high-priority traffic) and are mostly control-plane (a large, new software stack).
 
 ---
 
@@ -58,38 +88,74 @@ WAN links are bundles: many physical links aggregated between two routers.
 
 | | B4 | B2 |
 |---|---|---|
-| Traffic | Internal, cluster-to-cluster | User-facing, Internet peering |
-| Hardware | Merchant silicon | Vendor routers |
-| Control | Centralized SDN + TE | IS-IS, BGP, MPLS/RSVP |
+| Carries | Data center ↔ data center | Users ↔ data centers, Internet peering |
+| Sites | A few dozen data centers | Dense: border, core and edge routers |
+| Hardware | Merchant-silicon switches | Vendor routers |
+| Routing and TE | Central TE server, tunnels | IS-IS, eBGP, MPLS tunnels via RSVP |
+| Priorities | Priority queues; BwE admits and rate-limits at the edge | Traffic marking, vendor QoS, low-priority tunnels |
 
-> When B4 fails, CARs fall back to B2, and vice versa.
+Note:
+B2 keeps high-priority traffic on the shortest path by mapping low-priority traffic into low-priority tunnels. MPLS auto-bandwidth resizes tunnels as demand changes.
+B2 uses route reflection to scale BGP.
 
 ---
+
+## Services, priorities and draining
+
+- **Internal** customers: distributed storage and batch computation, e.g. rebuilding search indices
+- **User-facing** services: front-ends near users (proxy + cache) send requests to back-ends
+- Load balancers choose both, so operators can **drain** a cluster: steer traffic away before or during trouble
+- Priorities: **user-facing high, internal low**, enforced by both WANs
+
+> Draining is the main escape hatch. It shows up in almost every case study.
+
+Note:
+DNS load balancing sends users to a front-end; a load balancer tracking backend load picks the back-end.
+Drains cost capacity, and resuming service afterwards can take a long time, e.g. while storage replication catches up.
+A MOp judged high risk drains the affected services first. Risk-1 is a MOp that should have been drained and wasn't.
+
+---
+
+<!-- .slide: class="case" -->
 
 ## Control plane: fabrics and B4BRs
 
-<div class="net-slot" data-net="fabric-cp" data-scale="0.76"></div>
+<div class="net-slot" data-net="fabric-cp" data-scale="0.7"></div>
 
-<p class="caption">FC and RA compute paths and routes, and the OFC programs them into switches through OFAs. Everything talks over the out-of-band CPN.</p>
+<ol class="steps">
+<li class="fragment fade-out" data-fragment-index="0">The same three components run every cluster fabric and every B4BR. Hover any box for details</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="fc fc-ofc">The <b>FC</b> computes paths through the Clos fabric</li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="ra ra-peers ra-ofc peers">The <b>RA</b> exchanges BGP and IS-IS routes with routers outside the fabric</li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="ofc sw">The <b>OFC</b> turns both into forwarding rules and programs every switch through its OFA</li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-hl="cpn-r1 cpn-r2 cpn-link">They all talk over the <b>CPN</b>, a separate network that survives one router failure</li>
+</ol>
 
 Note:
-Same three components in cluster fabrics and inside each B4BR.
-FC: paths within the fabric. RA: speaks BGP and IS-IS with neighboring border routers and computes IP routes. OFC: programs switches via OpenFlow Agents, using what FC and RA computed.
 Every component is replicated with master/standby failover (a B4BR runs three copies).
-The CPN is designed to tolerate a single CPN router failure; the two routers run VRRP.
+The split into three components is for software modularity. It also means their state can drift apart, which is Consis-1.
+The CPN routers run VRRP, which presents the pair as one virtual router.
 
 ---
 
+<!-- .slide: class="case" -->
+
 ## Control plane: the B4 WAN
 
-<div class="net-slot" data-net="b4-cp" data-scale="0.76"></div>
+<div class="net-slot" data-net="b4-cp" data-scale="0.7"></div>
 
-<p class="caption">Gateway reads B4BR state → Topology Modeler builds a model → TE Server computes paths from it and BwE's demand → Gateway programs B4BRs</p>
+<ol class="steps">
+<li class="fragment fade-out" data-fragment-index="0">Above the B4BRs sits a global control plane. Hover any box for details</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="gw gw-b4br gw-topo topo">The <b>Gateway</b> reads state from every B4BR; the <b>Topology Modeler</b> turns it into a model of links and capacity</li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="bwe bwe-te">The <b>BwE</b> estimates each application's demand and holds it to its approved rate</li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="te topo-te bwe-te">The <b>TE Server</b> computes site-level paths from the model and the demand</li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-hl="te-gw gw gw-b4br b4br b4-bundle">The Gateway programs those paths into the B4BRs, which <b>tunnel</b> traffic across bundles</li>
+<li class="fragment current-visible" data-fragment-index="4" data-n="5" data-hl="shift b2br">Two fallbacks: switch TE off and use <b>shortest-path routing</b>, or move the traffic to <b>B2</b></li>
+</ol>
 
 Note:
-BwE (Bandwidth Enforcer) estimates demand for the TE Server and rate-limits applications to their approved share.
-The data plane tunnels traffic along TE paths.
-If B4 fails, traffic falls back to B2. That fallback appears in two of our case studies.
+Every global component is replicated, with replicas in geographically diverse sites.
+TE is layered on top of ordinary routing using higher-priority forwarding entries. That is what makes the TE off-switch possible: it was B4's original "big red button".
+Each B4BR translates one site-level path into paths through its own fabric and across one or more bundles.
 
 ---
 
@@ -148,64 +214,81 @@ A cluster is unavailable for a traffic class if loss from all other clusters exc
 
 ## Dataset: 103 post-mortems
 
-- Every network post-mortem at Google over two years
-- **Blameless**, co-written by the affected teams, peer-reviewed
-- Timeline, impact, root causes (often reproduced in a lab), action items
-- Only **unique** failures: a recurrence teaches nothing new, so it isn't written up
+<div class="chart" data-chart="dataset"></div>
+
+<p class="caption">Blameless, peer-reviewed, root causes often reproduced in a lab. Only <strong>unique</strong> failures: a repeat isn't written up again.</p>
 
 Note:
-Because of the last point, every "count" in the paper is a count of distinct failures, not a failure rate.
-The authors avoid analyzing trends over time for this reason.
+Every network post-mortem at Google over two years. Each has a timeline, impact, root causes and action items.
+Because only unique failures are written up, every count in the paper is a count of distinct failures, not a failure rate. The authors avoid trends over time for the same reason.
+Chart values are read off the paper's Figures 2–7. Figures 2–4 each sum to exactly 103.
 
 ---
 
 ## No single place to fix
 
-- Every network fails: clusters 40+, B4 25+, B2 comparable
-- Every plane fails; only B4 leans toward control-plane failures
-- Hot spots: B2BRs, CARs, fabrics (critical positions)
-- Less obvious ones: ToRs (concurrent buggy pushes), the CPN, BwE
+<div class="chart-row">
+<div class="chart" data-chart="planes"></div>
+<div class="chart" data-chart="elements"></div>
+</div>
 
-> No single network, plane or component to focus on.
+<p class="caption">Every network fails in every plane. Only B4 leans one way: 16 of its 26 failures are control-plane.</p>
+
+Note:
+Five elements cause 10+ failures each. B2BRs, CARs and fabrics sit at critical points in the topology.
+ToRs fail through buggy software pushed to many ToRs at once. The CPN (shared by clusters and B4) takes down whole control planes. Among WAN controllers, BwE stands out.
+Plane totals: control 43, data 26, management 34.
 
 ---
 
-## Failures are big and slow
+## Failures are big
 
-- 30+ events **blackholed** traffic, often for entire clusters
-- High packet loss is common for every traffic class
-- ~80% lasted **10–100 minutes**, against a budget of a few minutes per month
-- Under 10 min: cause was obvious. Over 100 min: low-priority loss, or a latent bug waiting on a fix
+<div class="chart" data-chart="impact"></div>
+
+<p class="caption">34 events blackholed traffic, often for whole clusters. B4 carries no high-priority traffic, so it is absent from those rows.</p>
 
 Note:
-Duration runs from discovery to repair, not to full service recovery. Draining a cluster stops the bleeding, but service resumption can take much longer, e.g. while storage replication catches up.
-B4 failures tend to last longer, since B4 carries no high-priority traffic.
+High/low loss is split using the same loss thresholds as the availability targets (0.1–2% depending on the class).
+"No impact" events are latent failures found before they hurt anything; operators chose to wait to fix them.
+
+---
+
+## …and slow
+
+<div class="chart" data-chart="duration"></div>
+
+<p class="caption">Time from discovery to repair. Shaded: 10–100 minutes. The budget for high-priority traffic is a few <em>minutes per month</em>.</p>
+
+Note:
+Discrepancy worth raising: the text says about 80% of failures lasted 10–100 minutes, but reading Figure 5 gives roughly half (B2 about two-thirds, clusters and B4 under half).
+Under 10 minutes: the cause was obvious or operators had seen it before. Over 100 minutes: usually low-priority loss, or a latent bug waiting on a release or a replacement part.
+B4 has the longest tail because it carries no high-priority traffic.
+Duration stops at the repair, not when services are back; that can take much longer (e.g. replication catching up after a drain).
 
 ---
 
 ## Evolution is in the loop
 
-- ~70 of 103 failures had a **MOp in progress** on the failing element
-- ~35 involved **software bugs**
-- Upgrades, config changes and rollouts show up on every network
+<div class="chart" data-chart="evolution"></div>
 
-> This says nothing about what *fraction* of MOps fail: 585 a week, and only unique failures are counted.
+<p class="caption">Categories overlap: upgrades, config changes and rollouts are all kinds of MOp. With 585 MOps a week, this is not a failure rate.</p>
+
+Note:
+A MOp in progress on the failing element does not mean the MOp was the root cause.
+The MOp count does not include automated MOps that are not documented for review.
 
 ---
 
 ## Root causes: 19 categories
 
-<div class="cols3">
-<div><h3>Data · 6</h3><ul><li>Device resource overruns</li><li>CPN failure</li><li>Concurrent hardware failure</li><li>Bad CoS markings</li><li>Fabric asymmetry or freeze</li><li>Link flaps or errors</li></ul></div>
-<div><h3>Control · 7</h3><ul><li>Cascade of control-plane elements</li><li>Inconsistent control-plane elements</li><li>Concurrent buggy software push</li><li>Incorrect traffic engineering</li><li>Data and control plane out of sync</li><li>Control-plane failure</li><li>Convergence delays</li></ul></div>
-<div><h3>Management · 6</h3><ul><li>Risk assessment failure</li><li>Bug in management automation</li><li>Routing misconfiguration</li><li>Competing drains or upgrades</li><li>Wrong or incomplete process</li><li>Process executed wrong</li></ul></div>
-</div>
+<div class="chart" data-chart="causes"></div>
 
-<p class="caption">6+ categories appear in all three networks: systemic, not one bad design.</p>
+<p class="caption">One failure can have several root causes. 6+ categories appear in all three networks: systemic, not one bad design.</p>
 
 Note:
-The authors deliberately avoid the coarse "hardware / software / config" split because it only yields generic advice.
-Each category shows up 2–13 times.
+The authors avoid the coarse "hardware / software / config" split because it only yields generic advice.
+Some categories belong to one network by design: the cascade of control-plane elements is B4-only.
+Split by plane: 6 data, 7 control, 6 management.
 
 ---
 

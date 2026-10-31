@@ -1,0 +1,254 @@
+/* Result charts (charts.js) */
+
+.reveal .chart {
+  font-family: var(--r-main-font);
+  font-size: 19px;
+  line-height: 1.25;
+  text-align: left;
+  color: var(--text);
+}
+
+.reveal .chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.reveal .chart .ctitle {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.reveal .chart .ctitle span {
+  margin-left: 6px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.reveal .chart .ctitle i,
+.reveal .chart .legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.reveal .chart .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.reveal .chart .legend b {
+  color: var(--heading);
+}
+
+/* Bars */
+.reveal .chart .rows {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+  gap: 9px 12px;
+}
+
+.reveal .chart .lbl {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.reveal .chart .track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.reveal .chart .cbar {
+  display: flex;
+  gap: 2px;
+  height: 22px;
+}
+
+.reveal .chart .seg {
+  min-width: 3px;
+}
+
+.reveal .chart .cbar .seg:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.reveal .chart .val {
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--heading);
+}
+
+/* Narrow columns: label above its bar */
+.reveal .chart .cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.reveal .chart .compact .rows {
+  grid-template-columns: 1fr;
+  gap: 3px;
+}
+
+.reveal .chart .compact .lbl {
+  margin-top: 7px;
+  font-size: 15px;
+  text-align: left;
+}
+
+.reveal .chart .compact .cbar {
+  height: 14px;
+}
+
+/* Heat grid */
+.reveal .chart table.heat {
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: 18px;
+}
+
+.reveal .chart table.heat th {
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--muted);
+}
+
+.reveal .chart table.heat th.row {
+  text-align: right;
+  color: var(--text);
+}
+
+.reveal .chart table.heat td {
+  width: 66px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+}
+
+.reveal .chart table.heat td.total {
+  background: none;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.reveal .chart table.heat td.callout {
+  box-shadow: inset 0 0 0 2px var(--heading);
+}
+
+/* Dataset: hero number and one square per failure */
+.reveal .chart .dataset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+}
+
+.reveal .chart .hero b {
+  display: block;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--heading);
+}
+
+.reveal .chart .hero span {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+.reveal .chart .waffle {
+  display: grid;
+  grid-template-columns: repeat(13, 24px);
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.reveal .chart .waffle i {
+  height: 24px;
+  border-radius: 4px;
+}
+
+/* Duration CDFs, one panel per network */
+.reveal .chart .cdfs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.reveal .chart .cdf svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.reveal .chart .cdf .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.reveal .chart .cdf .tick {
+  font-size: 12px;
+  fill: var(--muted);
+}
+
+.reveal .chart .cdf .band {
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  fill: var(--text);
+}
+
+/* Hover details */
+.reveal .chart [data-tip] {
+  position: relative;
+  cursor: help;
+}
+
+.reveal .chart [data-tip]:hover {
+  z-index: 5;
+  outline: 2px solid var(--heading);
+  outline-offset: 1px;
+}
+
+.reveal .chart [data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 280px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text);
+  white-space: normal;
+  pointer-events: none;
+}

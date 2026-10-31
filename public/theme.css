@@ -438,3 +438,21 @@
 .reveal p.lesson b {
   color: var(--ok);
 }
+
+/* Two columns of lists: <div class="cols2"> */
+.reveal .cols2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+  font-size: 0.62em;
+}
+
+.reveal .cols2 h3 {
+  margin-bottom: 0.5em;
+  font-size: 1.3em;
+}
+
+.reveal .cols2 ul {
+  margin-left: 1.1em;
+  font-size: 1em;
+}

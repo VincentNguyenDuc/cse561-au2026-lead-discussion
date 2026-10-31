@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="diagram.css">
+  <link rel="stylesheet" href="charts.css">
 </head>
 <body>
   <button id="minimap-toggle" aria-controls="minimap" aria-expanded="false" title="Toggle slide list (M)">
@@ -66,29 +67,32 @@
         <line class="bundle b2" data-id="b2-bundle" x1="1040" y1="262" x2="760" y2="172"/>
         <line class="peer ext" data-id="peer" x1="760" y1="172" x2="1040" y2="38"/>
         <line class="peer ext" data-id="peer" x1="1040" y1="172" x2="1040" y2="38"/>
-        <g class="cl" transform="translate(150 0)">
+        <g class="cl" data-id="fabric fabric-1" transform="translate(150 0)">
           <path class="fab" d="M150 462L120 490M150 462L170 490M150 462L220 490M150 462L270 490M120 508L120 545M120 508L170 545M120 508L220 545M120 508L270 545M170 508L120 545M170 508L170 545M170 508L220 545M170 508L270 545M220 508L120 545M220 508L170 545M220 508L220 545M220 508L270 545M270 508L120 545M270 508L170 545M270 508L220 545M270 508L270 545M120 563L120 600M120 563L170 600M170 563L120 600M170 563L170 600M220 563L220 600M220 563L270 600M270 563L220 600M270 563L270 600"/>
           <rect class="sw-r" x="102" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="490" width="36" height="18" rx="4"/>
           <rect class="sw-r" x="102" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="545" width="36" height="18" rx="4"/>
           <rect class="sw-r" x="102" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="600" width="36" height="18" rx="4"/>
         </g>
-        <g class="cl" transform="translate(750 0)">
+        <g class="cl" data-id="fabric fabric-2" transform="translate(750 0)">
           <path class="fab" d="M150 462L120 490M150 462L170 490M150 462L220 490M150 462L270 490M120 508L120 545M120 508L170 545M120 508L220 545M120 508L270 545M170 508L120 545M170 508L170 545M170 508L220 545M170 508L270 545M220 508L120 545M220 508L170 545M220 508L220 545M220 508L270 545M270 508L120 545M270 508L170 545M270 508L220 545M270 508L270 545M120 563L120 600M120 563L170 600M170 563L120 600M170 563L170 600M220 563L220 600M220 563L270 600M270 563L220 600M270 563L270 600"/>
           <rect class="sw-r" x="102" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="490" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="490" width="36" height="18" rx="4"/>
           <rect class="sw-r" x="102" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="545" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="545" width="36" height="18" rx="4"/>
           <rect class="sw-r" x="102" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="152" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="202" y="600" width="36" height="18" rx="4"/><rect class="sw-r" x="252" y="600" width="36" height="18" rx="4"/>
         </g>
+        <path class="route b2 opt" data-id="path-user" d="M1040 38L1040 172L1040 262L300 440L300 560"/>
+        <path class="route b4 opt" data-id="path-copy" d="M300 560L300 440L140 262L450 262L900 440L900 560"/>
+        <path class="route b2 opt" data-id="path-fallback" d="M300 560L300 440L760 262L900 440L900 560"/>
       </svg>
-      <div class="n b4" data-id="b4br b4br-a" style="left:80px;top:240px">B4BR</div>
-      <div class="n b4" data-id="b4br b4br-b" style="left:235px;top:150px">B4BR</div>
-      <div class="n b4" data-id="b4br b4br-c" style="left:390px;top:240px">B4BR</div>
-      <div class="n b2" data-id="b2cr" style="left:700px;top:150px">B2CR</div>
-      <div class="n b2" data-id="b2cr" style="left:980px;top:150px">B2CR</div>
-      <div class="n b2" data-id="b2br" style="left:700px;top:240px">B2BR</div>
-      <div class="n b2" data-id="b2br" style="left:980px;top:240px">B2BR</div>
-      <div class="n pill ext" data-id="internet" style="left:940px;top:16px;width:200px">Internet · peers &amp; ISPs</div>
-      <div class="n cl" data-id="car car-1" style="left:240px;top:418px">CAR</div>
-      <div class="n cl" data-id="car car-2" style="left:840px;top:418px">CAR</div>
+      <div class="n b4" data-id="b4br b4br-a" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:80px;top:240px">B4BR</div>
+      <div class="n b4" data-id="b4br b4br-b" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:235px;top:150px">B4BR</div>
+      <div class="n b4" data-id="b4br b4br-c" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:390px;top:240px">B4BR</div>
+      <div class="n b2" data-id="b2cr b2cr-1" data-tip="B2 core router: links B2 border routers to each other, and to the edge routers that peer with ISPs and customers." style="left:700px;top:150px">B2CR</div>
+      <div class="n b2" data-id="b2cr b2cr-2" data-tip="B2 core router: links B2 border routers to each other, and to the edge routers that peer with ISPs and customers." style="left:980px;top:150px">B2CR</div>
+      <div class="n b2" data-id="b2br b2br-1" data-tip="B2 border router: a vendor router with its own internal switching fabric. Every CAR connects to two of them." style="left:700px;top:240px">B2BR</div>
+      <div class="n b2" data-id="b2br b2br-2" data-tip="B2 border router: a vendor router with its own internal switching fabric. Every CAR connects to two of them." style="left:980px;top:240px">B2BR</div>
+      <div class="n pill ext" data-id="internet" data-tip="Edge routers hang off the B2CRs and peer with customers and transit ISPs." style="left:940px;top:16px;width:200px">Internet · peers &amp; ISPs</div>
+      <div class="n cl" data-id="car car-1" data-tip="Cluster aggregation router: connects the cluster to one B4BR and two B2BRs. In older designs it is a separate Clos fabric; in the newest, some fabric blocks act as the CAR." style="left:240px;top:418px">CAR</div>
+      <div class="n cl" data-id="car car-2" data-tip="Cluster aggregation router: connects the cluster to one B4BR and two B2BRs. In older designs it is a separate Clos fabric; in the newest, some fabric blocks act as the CAR." style="left:840px;top:418px">CAR</div>
       <div class="lbl c i" style="left:295px;top:272px">bundle</div>
       <div class="lbl c i" style="left:900px;top:146px">bundle</div>
       <div class="lbl" style="left:170px;top:491px">spine</div>
@@ -99,10 +103,10 @@
       <div class="lbl" style="left:770px;top:601px">ToR</div>
       <div class="lbl c" style="left:600px;top:515px;font-size:28px;letter-spacing:6px">···</div>
       <div class="lbl c" style="left:600px;top:560px">more clusters</div>
-      <div class="badge b4" style="left:50px;top:76px">B4 · internal WAN</div>
-      <div class="badge b2" style="left:660px;top:76px">B2 · user-facing WAN</div>
-      <div class="badge cl" style="left:170px;top:635px">Cluster · Clos fabric</div>
-      <div class="badge cl" style="left:770px;top:635px">Cluster · Clos fabric</div>
+      <div class="badge b4" data-tip="Connects data centers: over 90% of internal traffic. Built to tolerate failures, so busy links run near 100%." style="left:50px;top:76px">B4 · internal WAN</div>
+      <div class="badge b2" data-tip="Connects users to data centers and peers with the Internet. Built like an ISP, for the highest availability." style="left:660px;top:76px">B2 · user-facing WAN</div>
+      <div class="badge cl tip-up" data-tip="A multi-stage Clos fabric: ToRs connect racks of servers, superblocks aggregate them, spine blocks sit on top. ECMP spreads traffic across the many paths, and several fabric generations coexist." style="left:170px;top:635px">Cluster · Clos fabric</div>
+      <div class="badge cl tip-up" data-tip="A multi-stage Clos fabric: ToRs connect racks of servers, superblocks aggregate them, spine blocks sit on top. ECMP spreads traffic across the many paths, and several fabric generations coexist." style="left:770px;top:635px">Cluster · Clos fabric</div>
     </div>
   </template>
 
@@ -128,19 +132,19 @@
         <line class="drop cpn" data-id="cpn-link" x1="875" y1="262" x2="875" y2="352"/>
         <line class="drop cpn" data-id="cpn-link" x1="1060" y1="262" x2="1060" y2="352"/>
       </svg>
-      <div class="n cp" data-id="fc" style="left:60px;top:62px;width:170px;height:56px"><b>FC</b><small>paths in the fabric</small></div>
-      <div class="n cp" data-id="ofc ofc-1" style="left:316px;top:62px;width:170px;height:56px"><b>OFC #1</b><small>master</small></div>
-      <div class="n cp" data-id="ofc ofc-2" style="left:494px;top:62px;width:170px;height:56px"><b>OFC #2</b><small>standby</small></div>
-      <div class="n cp" data-id="ra" style="left:760px;top:62px;width:170px;height:56px"><b>RA</b><small>BGP · IS-IS routes</small></div>
-      <div class="n ext" data-id="peers" style="left:1000px;top:62px;width:170px;height:56px"><b>Border routers</b><small>eBGP · IS-IS</small></div>
-      <div class="n cpn" data-id="cpn-r1" style="left:470px;top:204px;width:130px">CPN router</div>
-      <div class="n cpn" data-id="cpn-r2" style="left:620px;top:204px;width:130px">CPN router</div>
-      <div class="n cl" data-id="sw sw-1" style="left:60px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
-      <div class="n cl" data-id="sw sw-2" style="left:245px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
-      <div class="n cl" data-id="sw sw-3" style="left:430px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
-      <div class="n cl" data-id="sw sw-4" style="left:615px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
-      <div class="n cl" data-id="sw sw-5" style="left:800px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
-      <div class="n cl" data-id="sw sw-6" style="left:985px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cp" data-id="fc" data-tip="Fabric Controller: computes paths through the Clos fabric. Switches forward with ECMP across them." style="left:60px;top:62px;width:170px;height:56px"><b>FC</b><small>paths in the fabric</small></div>
+      <div class="n cp" data-id="ofc ofc-1" data-tip="OpenFlow Controller: the only component that talks to switches. It programs them through their OFAs using what FC and RA computed. Replicas fail over master to standby." style="left:316px;top:62px;width:170px;height:56px"><b>OFC #1</b><small>master</small></div>
+      <div class="n cp" data-id="ofc ofc-2" data-tip="OpenFlow Controller: the only component that talks to switches. It programs them through their OFAs using what FC and RA computed. Replicas fail over master to standby." style="left:494px;top:62px;width:170px;height:56px"><b>OFC #2</b><small>standby</small></div>
+      <div class="n cp" data-id="ra" data-tip="Routing Agent: speaks BGP and IS-IS with border routers outside the fabric and computes IP routes." style="left:760px;top:62px;width:170px;height:56px"><b>RA</b><small>BGP · IS-IS routes</small></div>
+      <div class="n ext" data-id="peers" data-tip="Routers outside this fabric that the RA exchanges BGP and IS-IS routes with." style="left:1000px;top:62px;width:170px;height:56px"><b>Border routers</b><small>eBGP · IS-IS</small></div>
+      <div class="n cpn" data-id="cpn-r1" data-tip="A router of the out-of-band control plane network. The two run VRRP, so one can fail without the control plane noticing." style="left:470px;top:204px;width:130px">CPN router</div>
+      <div class="n cpn" data-id="cpn-r2" data-tip="A router of the out-of-band control plane network. The two run VRRP, so one can fail without the control plane noticing." style="left:620px;top:204px;width:130px">CPN router</div>
+      <div class="n cl tip-up" data-id="sw sw-1" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:60px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl tip-up" data-id="sw sw-2" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:245px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl tip-up" data-id="sw sw-3" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:430px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl tip-up" data-id="sw sw-4" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:615px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl tip-up" data-id="sw sw-5" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:800px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
+      <div class="n cl tip-up" data-id="sw sw-6" data-tip="A merchant-silicon switch. Its OpenFlow Agent (OFA) takes forwarding rules from the OFC." style="left:985px;top:352px;width:150px;height:80px"><b>switch</b><span class="chip">OFA</span></div>
       <div class="lbl c" style="left:264px;top:68px">paths</div>
       <div class="lbl c" style="left:721px;top:68px">routes</div>
       <div class="lbl" style="left:766px;top:218px">VRRP pair</div>
@@ -174,15 +178,15 @@
         <line class="bundle b2" data-id="b2-bundle" x1="880" y1="407" x2="1080" y2="407"/>
         <line class="flow shift b2" data-id="shift" x1="562" y1="407" x2="818" y2="407" marker-end="url(#net-arrow)"/>
       </svg>
-      <div class="n cp" data-id="topo" style="left:120px;top:70px;width:200px;height:56px"><b>Topology Modeler</b><small>WAN topology model</small></div>
-      <div class="n cp" data-id="te" style="left:500px;top:70px;width:200px;height:56px"><b>TE Server</b><small>site-level TE paths</small></div>
-      <div class="n cp" data-id="bwe" style="left:880px;top:70px;width:200px;height:56px"><b>BwE</b><small>demand · app rate limits</small></div>
-      <div class="n cp" data-id="gw" style="left:500px;top:200px;width:200px;height:56px"><b>B4 Gateway</b><small>reads &amp; programs B4BRs</small></div>
-      <div class="n b4" data-id="b4br" style="left:60px;top:385px">B4BR</div>
-      <div class="n b4" data-id="b4br" style="left:250px;top:385px">B4BR</div>
-      <div class="n b4" data-id="b4br" style="left:440px;top:385px">B4BR</div>
-      <div class="n b2" data-id="b2br" style="left:820px;top:385px">B2BR</div>
-      <div class="n b2" data-id="b2br" style="left:1020px;top:385px">B2BR</div>
+      <div class="n cp" data-id="topo" data-tip="Builds a model of the current WAN topology, including capacity at and between B4BRs, from state the Gateway extracts." style="left:120px;top:70px;width:200px;height:56px"><b>Topology Modeler</b><small>WAN topology model</small></div>
+      <div class="n cp" data-id="te" data-tip="Computes site-level TE paths between B4BRs from the topology model and the traffic demand." style="left:500px;top:70px;width:200px;height:56px"><b>TE Server</b><small>site-level TE paths</small></div>
+      <div class="n cp" data-id="bwe" data-tip="Bandwidth Enforcer: estimates demand for the TE Server and rate-limits each application to its approved share." style="left:880px;top:70px;width:200px;height:56px"><b>BwE</b><small>demand · app rate limits</small></div>
+      <div class="n cp" data-id="gw" data-tip="Extracts network state from B4BRs and programs control-plane state into them. Each B4BR turns site-level paths into tunnels across its fabric and bundles." style="left:500px;top:200px;width:200px;height:56px"><b>B4 Gateway</b><small>reads &amp; programs B4BRs</small></div>
+      <div class="n b4 tip-up" data-id="b4br" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:60px;top:385px">B4BR</div>
+      <div class="n b4 tip-up" data-id="b4br" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:250px;top:385px">B4BR</div>
+      <div class="n b4 tip-up" data-id="b4br" data-tip="B4 border router: a multi-stage switch built from merchant silicon, with its own FC, RA and OFC. Traffic between distant metros can cross several B4BRs." style="left:440px;top:385px">B4BR</div>
+      <div class="n b2 tip-up" data-id="b2br" data-tip="B2 border router: a vendor router with its own internal switching fabric. Every CAR connects to two of them." style="left:820px;top:385px">B2BR</div>
+      <div class="n b2 tip-up" data-id="b2br" data-tip="B2 border router: a vendor router with its own internal switching fabric. Every CAR connects to two of them." style="left:1020px;top:385px">B2BR</div>
       <div class="lbl" style="left:300px;top:190px">network state</div>
       <div class="lbl c" style="left:409px;top:74px">topology</div>
       <div class="lbl c" style="left:791px;top:74px">demand</div>
@@ -207,5 +211,6 @@
   </script>
   <script src="minimap.js"></script>
   <script src="diagram.js"></script>
+  <script src="charts.js"></script>
 </body>
 </html>

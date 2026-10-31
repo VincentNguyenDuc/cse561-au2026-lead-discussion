@@ -2,6 +2,7 @@
 
 .reveal .net-slot {
   position: relative;
+  z-index: 1; /* keeps tooltips above the step captions that follow */
   margin: 0 auto;
 }
 
@@ -210,7 +211,8 @@
 }
 
 /* Optional elements appear only when a step names them */
-.net .opt {
+.net .opt,
+.net.focus .opt:not(.hl, .fail, .ok) {
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -269,4 +271,73 @@
 
 .reveal ol.steps li.lesson b {
   color: var(--ok);
+}
+
+/* A highlighted SVG group (a cluster's Clos fabric) stays lit as a whole */
+.net.focus g:is(.hl, .fail, .ok) rect {
+  opacity: 1;
+}
+
+.net.focus g:is(.hl, .fail, .ok) .fab {
+  opacity: 0.8;
+}
+
+.net g.hl {
+  filter: drop-shadow(0 0 8px var(--c));
+}
+
+/* Traffic routes: dots flowing along the path while highlighted */
+.net .route {
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 17;
+}
+
+.net .route.hl {
+  stroke-width: 7;
+  animation: net-flow 0.7s linear infinite;
+}
+
+@keyframes net-flow {
+  to { stroke-dashoffset: -18; }
+}
+
+/* Hover details: <div data-tip="..."> */
+.net [data-tip] {
+  cursor: help;
+}
+
+.net [data-tip]:hover {
+  z-index: 10;
+}
+
+.net [data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 380px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  color: var(--text);
+  font-size: 21px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* Elements near the bottom of a diagram open their tooltip upward */
+.net [data-tip].tip-up:hover::after {
+  top: auto;
+  bottom: calc(100% + 10px);
 }
