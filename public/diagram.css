@@ -286,8 +286,17 @@
   filter: drop-shadow(0 0 8px var(--c));
 }
 
-/* Traffic routes: dots flowing along the path while highlighted */
+/* Traffic routes: a glowing line in the network's color, with bright dots flowing along it */
+.net .route-base,
+.net .route-base.hl {
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px var(--c));
+}
+
 .net .route {
+  stroke: #fff;
   stroke-width: 7;
   stroke-linecap: round;
   stroke-linejoin: round;

@@ -52,17 +52,18 @@ The conclusion is counter-intuitive: the data says change causes failures, yet t
 <li class="fragment fade-out" data-fragment-index="0">Clusters, plus two WANs that connect them. Hover any box for details</li>
 <li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="fabric cluster-1 cluster-2">Each <b>cluster</b> is a multi-stage Clos fabric of merchant-silicon switches: ToR, superblock, spine</li>
 <li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="car up">Its <b>CAR</b> (cluster aggregation router) connects it to both WANs: one B4BR and two B2BRs</li>
-<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="b4br b4-bundle">On <b>B4</b>, B4BRs in different metros are linked directly by bundles of many physical links</li>
-<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-hl="b2br b2cr b2-bundle internet peer"><b>B2</b> adds a core: B2CRs link the B2BRs and the edge routers that peer with ISPs</li>
-<li class="fragment current-visible" data-fragment-index="4" data-n="5" data-hl="path-user internet b2cr-2 b2br-2 car-1 fabric-1">A <b>user request</b>: Internet → B2CR → B2BR → CAR → a front-end in the cluster</li>
-<li class="fragment current-visible" data-fragment-index="5" data-n="6" data-hl="path-copy car-1 car-2 b4br-a b4br-c fabric-1 fabric-2">An <b>internal copy</b>: CAR → B4BR → bundle → B4BR → CAR. Most data-center traffic takes this route</li>
-<li class="fragment current-visible" data-fragment-index="6" data-n="7" data-hl="path-fallback car-1 car-2 b2br-1 fabric-1 fabric-2" data-fail="b4br b4-bundle">If <b>B4 fails</b>, CARs send that traffic over B2 instead, which B2 must now absorb</li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="b4br b4-bundle">On <b>B4</b>, B4BRs connect over point-to-point bundles of many parallel links, but <b>not every pair</b> has one</li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-hl="b2br b2cr b2-bundle internet peer"><b>B2</b> adds a core layer: B2CRs link the B2BRs to each other and to the edge routers that peer with ISPs</li>
+<li class="fragment current-visible" data-fragment-index="4" data-n="5" data-hl="path-user internet b2cr-3 b2cr-2 b2br-1 car-1 fabric-1">A <b>user request</b>: Internet → B2CR → B2CR → B2BR → CAR → a front-end in the cluster</li>
+<li class="fragment current-visible" data-fragment-index="5" data-n="6" data-hl="path-copy car-1 car-2 b4br-a b4br-b b4br-d fabric-1 fabric-2">An <b>internal copy</b>: these two B4BRs share no bundle, so it crosses a third one in between</li>
+<li class="fragment current-visible" data-fragment-index="6" data-n="7" data-hl="path-fallback car-1 car-2 b2br-2 fabric-1 fabric-2" data-fail="b4br b4-bundle">If <b>B4 fails</b>, CARs send that traffic over B2 instead, which B2 must now absorb</li>
 </ol>
 
 Note:
 WAN links are bundles: many physical links aggregated between two routers.
 Several generations of cluster fabric coexist. In older ones the CAR is a separate Clos fabric; in the newest, some fabric blocks act as the CAR.
-B4 has no core routers: with only a few dozen sites, B4BRs link to each other directly and also carry transit traffic.
+B4 has no core routers: each bundle joins two B4BRs with only fiber and optical gear in between. But B4 is not a full mesh, so B4BRs in the middle of a path carry transit traffic, doing the core's job.
+B2 has a dedicated core layer; user traffic can cross several B2CRs.
 The fallback in step 7 is exactly what overloads B2 in CPN-1 and Casc-1 later.
 
 ---
