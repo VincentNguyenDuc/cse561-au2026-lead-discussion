@@ -108,7 +108,7 @@
 
   <!-- Control plane of a cluster fabric or a B4BR -->
   <template id="net-fabric-cp">
-    <div class="net" data-w="1200" data-h="480">
+    <div class="net" data-w="1200" data-h="530">
       <div class="region cp" style="left:20px;top:30px;width:940px;height:110px"></div>
       <div class="region group cp" data-id="ofc" style="left:300px;top:50px;width:380px;height:80px"></div>
       <div class="region cpn" style="left:20px;top:190px;width:1160px;height:72px"></div>
@@ -144,6 +144,11 @@
       <div class="lbl c" style="left:264px;top:68px">paths</div>
       <div class="lbl c" style="left:721px;top:68px">routes</div>
       <div class="lbl" style="left:766px;top:218px">VRRP pair</div>
+      <div class="divider opt" data-id="vr" style="left:597px;top:330px;height:120px"></div>
+      <div class="lbl c opt" data-id="vr" style="left:320px;top:438px">virtual router 1</div>
+      <div class="lbl c opt" data-id="vr" style="left:875px;top:438px">virtual router 2</div>
+      <div class="n ext opt" data-id="mon" style="left:900px;top:204px;width:170px">collectors ×2</div>
+      <div class="n ext opt" data-id="mon-ext" style="left:900px;top:478px;width:260px">collectors · another cluster</div>
       <div class="badge cp" style="left:40px;top:16px">control plane · replicated</div>
       <div class="badge cpn" style="left:40px;top:176px">CPN · out-of-band control network</div>
       <div class="badge cl" style="left:40px;top:306px">data plane · fabric switches</div>

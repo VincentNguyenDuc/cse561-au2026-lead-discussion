@@ -146,21 +146,21 @@
   transition: opacity 0.3s, border-color 0.3s, stroke 0.3s, box-shadow 0.3s, background 0.3s;
 }
 
-.net.focus :is(line, path, rect):not(.hl, .fail) {
+.net.focus :is(line, path, rect):not(.hl, .fail, .ok) {
   opacity: 0.3;
 }
 
 /* Dim nodes without making them see-through, so links stay hidden behind them */
-.net.focus .n:not(.hl, .fail) {
+.net.focus .n:not(.hl, .fail, .ok) {
   border-color: color-mix(in srgb, var(--c) 30%, var(--surface));
 }
 
-.net.focus .n:not(.hl, .fail) > *,
-.net.focus .n:not(.hl, .fail):not(:has(*)) {
+.net.focus .n:not(.hl, .fail, .ok) > *,
+.net.focus .n:not(.hl, .fail, .ok):not(:has(*)) {
   color: color-mix(in srgb, var(--heading) 30%, var(--surface));
 }
 
-.net.focus .n:not(.hl, .fail) :is(small, .chip) {
+.net.focus .n:not(.hl, .fail, .ok) :is(small, .chip) {
   opacity: 0.4;
 }
 
@@ -188,6 +188,39 @@
   stroke-width: 3;
   stroke-dasharray: 6 5;
   opacity: 1;
+}
+
+/* The "fixed" view of a lesson step */
+.net .ok {
+  --c: var(--ok);
+}
+
+.net .n.ok {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 30%, transparent),
+              0 0 28px color-mix(in srgb, var(--ok) 50%, transparent);
+}
+
+.net :is(line, path).ok {
+  stroke-width: 4;
+  opacity: 1;
+}
+
+.net .lbl.ok {
+  color: var(--ok);
+}
+
+/* Optional elements appear only when a step names them */
+.net .opt {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.net .opt:is(.hl, .fail, .ok) {
+  opacity: 1;
+}
+
+.net .divider {
+  border-left: 2px dashed var(--c);
 }
 
 /* Step captions under a diagram: stacked, one visible at a time */
@@ -226,4 +259,14 @@
 
 .reveal ol.steps b {
   color: var(--accent-light);
+}
+
+/* Last step of a case: the lesson. <li class="lesson" data-n="✓"> */
+.reveal ol.steps li.lesson::before {
+  background: var(--ok);
+  color: var(--bg);
+}
+
+.reveal ol.steps li.lesson b {
+  color: var(--ok);
 }

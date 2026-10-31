@@ -16,11 +16,11 @@ Lead discussion: Vincent Nguyen, Cheng Peng
 - **Finding:** failures hit every network and every plane, with no dominant root cause
 - **Cause:** ~70 happened **while the network was being changed** (a management operation)
 - **Lesson:** no silver bullet
-- **Conclusion:** don't slow down. Upgrade *continuously*, and make change safe
 
-> Touching the network breaks it. So touch it often, and make touching it safe.
+<blockquote><span class="fragment strike" data-fragment-index="0">If it works, don't touch it.</span> <span class="fragment" data-fragment-index="0">Touch it often, and make touching it safe.</span></blockquote>
 
 Note:
+Click once: the old sysadmin rule gets struck out and replaced by the paper's answer.
 The rest of the talk is the evidence for these lines.
 MOp = management operation: upgrades, config changes, drains, replacing hardware. Google schedules ~585 a week.
 The conclusion is counter-intuitive: the data says change causes failures, yet the answer is more change, made small and automated.
@@ -32,9 +32,7 @@ The conclusion is counter-intuitive: the data says change causes failures, yet t
 1. Google's network
 2. Why high availability is hard
 3. What breaks: 103 post-mortems
-4. Case studies
-5. Design principles
-6. Discussion
+4. Failures and their lessons
 
 ---
 
@@ -213,7 +211,7 @@ Each category shows up 2–13 times.
 
 <!-- .slide: class="section" -->
 
-## Case studies
+## Failures and their lessons
 
 ---
 
@@ -229,33 +227,49 @@ Each category shows up 2–13 times.
 <li class="fragment current-visible" data-fragment-index="1" data-n="2" data-fail="ofc">But VRRP fails over <b>slower than the OFC liveness timeout</b>: the OFCs lose each other and both declare themselves master</li>
 <li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="ofc-1" data-fail="sw">A watchdog resolves it, but the new master can't rebuild port state, so it <b>pushes wrong forwarding state</b> to every switch</li>
 <li class="fragment current-visible" data-fragment-index="3" data-n="4">The B4BR blackholes. Its clusters fail over to B2, which <b>overloads</b></li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-fail="sw-1 sw-2 sw-3" data-ok="sw-4 sw-5 sw-6 vr"><b>Contain the failure radius:</b> split the B4BR into <i>k</i> virtual routers, each with its own control plane, so a failure costs only 1/<i>k</i></li>
 </ol>
 
 Note:
 Data-plane category: control plane network failure.
 Two timers that were each reasonable on their own interacted badly. The fallback to B2 then turned one failure into a second one.
-Principles: contain the failure radius; continuously check invariants like "each OFC has redundant connectivity to 2 CPN routers".
+The lesson view shows k = 2: one virtual router fails, the other keeps forwarding.
 
 ---
 
 <!-- .slide: class="case" -->
 
-## Casc-1: a cascade through B4's controllers
+## BugAuto-1: automation vs. a new abstraction
 
-<div class="net-slot" data-net="b4-cp" data-scale="0.7"></div>
+<div class="net-slot" data-net="topology" data-scale="0.62"></div>
 
 <ol class="steps">
-<li class="fragment fade-out" data-fragment-index="0">Each B4 controller trusts what the one upstream of it says</li>
-<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="b4br b4-bundle">During an upgrade, a WAN bundle moves between B4BRs, so link config and routing <b>briefly disagree</b></li>
-<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="gw gw-topo" data-fail="topo">That triggers a Topology Modeler bug: some prefixes now appear to <b>originate in two clusters</b></li>
-<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="topo-te bwe" data-fail="bwe">BwE assumes a prefix has one origin, so it concludes <b>all of B4 has failed</b></li>
-<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="shift b2br">BwE moves B4 traffic for several metros onto B2, which <b>overloads</b></li>
+<li class="fragment fade-out" data-fragment-index="0">Each cluster reaches both WANs through its CAR</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="car-1">A script upgrades control-plane software across the CAR's 4 blocks, <b>draining and undraining links in order</b></li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="car-1 up-1">But <b>supertrunking</b> (one logical link across several switches) was recently enabled here, and it needs a different order</li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="car-1 up-1 cluster-1">BGP adjacencies never came back: the cluster was <b>cut off from both WANs</b></li>
+<li class="fragment current-visible lesson" data-fragment-index="3" data-n="✓" data-reset data-ok="car-1 up-1"><b>Big red button:</b> keep the old trunk abstraction alive, with a switch to fall back to it when the new one breaks</li>
 </ol>
 
 Note:
-Control-plane category: cascade of control-plane elements.
-A transient inconsistency during a routine upgrade became a WAN-wide traffic shift.
-Principle: fail open. Verify large control-plane updates, e.g. cross-check the dual origin against probes or BGP feeds before acting on it.
+Management-plane category: bug in management-plane automation.
+The control plane evolved (supertrunking) but the management plane's scripts didn't.
+Automation raised the level of abstraction and improved availability overall, but it also adds a layer that can fail at scale.
+
+---
+
+<!-- .slide: class="principle" -->
+
+## Defense in depth
+
+- **Contain the failure radius:** split a B4BR or CAR into *k* virtual routers, each with its own control plane
+  - One failure costs 1/*k* of capacity, and a virtual router is the unit for MOps
+- **Fallbacks:** B4 → B2 and back; TE → plain IP routing
+- **Big red buttons:** every new feature keeps the old one alive, plus a switch to go back
+
+Note:
+Concurrent failure of *all* replicas of a controller is not uncommon (BugAuto-1), so replication alone isn't enough.
+Partitioning alternative: "color" links and switches and give each color its own control plane.
 
 ---
 
@@ -271,88 +285,16 @@ Principle: fail open. Verify large control-plane updates, e.g. cross-check the d
 <li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="ra ra-ofc ofc">A full table update (e.g. a BGP reset) skips unused groups, so the OFC correctly <b>deletes it</b></li>
 <li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="ra" data-fail="ra-ofc ofc sw">A new route reuses the cached group. The OFC has no record of it and <b>drops the route</b>: no flow entries, blackhole</li>
 <li class="fragment current-visible" data-fragment-index="3" data-n="4">ECMP and RPC retries made it look like intermittent loss. It took <b>weeks</b> to root-cause</li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="ra ofc ra-ofc"><b>Track state equivalence:</b> continuously compare RA and OFC route counts, so the mismatch is flagged before routes go missing</li>
 </ol>
 
 Note:
 Control-plane category: lack of consistency between control-plane elements.
 A routing config change had made full table updates much more frequent, which made this rare sequence more likely.
-Principle: maintain consistency. Tracking the difference in route counts between RA and OFC would have given early warning.
 
 ---
 
-## Risk-1: the 30% that was really 50%
-
-<p class="lead">MOp: power off 30% of a fabric's switches, restore, repeat (30+ hours)</p>
-
-<div class="bars">
-<div class="bar"><span>Estimated loss</span><i style="--v:30%"></i><b>~30%</b></div>
-<div class="bar bad fragment"><span>Actual loss</span><i style="--v:55%"></i><b>&gt;50%</b></div>
-</div>
-
-- Estimated as safe, so services were **not drained**
-- Capacity in a multistage fabric depends on its topology and power design, not just on what fraction of hardware is off
-- **Risk-2:** splitting a B4BR, the estimate was off by 2×, *and* failures elsewhere sent more traffic through it
-
-Note:
-Management-plane category: risk assessment failure.
-Early rule of thumb: losing more than 50% of capacity is risky, because the network is provisioned for a single failure.
-Coarse estimates like this were later replaced by an automated tool.
-Principle: assess risk continuously, at every step of the MOp.
-
----
-
-<!-- .slide: class="case" -->
-
-## BugAuto-1: automation vs. a new abstraction
-
-<div class="net-slot" data-net="topology" data-scale="0.62"></div>
-
-<ol class="steps">
-<li class="fragment fade-out" data-fragment-index="0">Each cluster reaches both WANs through its CAR</li>
-<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="car-1">A script upgrades control-plane software across the CAR's 4 blocks, <b>draining and undraining links in order</b></li>
-<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="car-1 up-1">But <b>supertrunking</b> (one logical link across several switches) was recently enabled here, and it needs a different order</li>
-<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="car-1 up-1 cluster-1">BGP adjacencies never came back: the cluster was <b>cut off from both WANs</b></li>
-</ol>
-
-Note:
-Management-plane category: bug in management-plane automation.
-The control plane evolved (supertrunking) but the management plane's scripts didn't.
-Automation raised the level of abstraction and improved availability overall, but it also adds a layer that can fail at scale.
-Principle: big red buttons. Keep the old trunk abstraction around and be able to fall back to it.
-
----
-
-<!-- .slide: class="section" -->
-
-## Design principles
-
----
-
-## From failures to principles
-
-| Principle | Mechanism | Case |
-|---|---|---|
-| Defense in depth | Contain blast radius, fallbacks | CPN-1, Casc-1 |
-| Consistency | Consistent updates, invariants | Consis-1 |
-| Fail open | Keep the data plane, verify big updates | Casc-1 |
-| Prevention | Continuous risk assessment, canaries | Risk-1, Risk-2 |
-| Recover fast | Monitoring coverage | Over-1 |
-| Keep upgrading | Small, frequent changes | all of them |
-
----
-
-## Defense in depth
-
-- **Contain the failure radius:** split a B4BR or CAR into *k* virtual routers, each with its own control plane
-  - One failure costs 1/*k* of capacity, and a virtual router is the unit for MOps
-- **Fallbacks:** B4 → B2 and back; TE → plain IP routing
-- **Big red buttons:** every new feature keeps the old one alive, plus a switch to go back
-
-Note:
-Concurrent failure of *all* replicas of a controller is not uncommon (BugAuto-1), so replication alone isn't enough.
-Partitioning alternative: "color" links and switches and give each color its own control plane.
-
----
+<!-- .slide: class="principle" -->
 
 ## Maintain consistency
 
@@ -368,6 +310,29 @@ Monitoring should rank invariant violations by risk instead of flooding operator
 
 ---
 
+<!-- .slide: class="case" -->
+
+## Casc-1: a cascade through B4's controllers
+
+<div class="net-slot" data-net="b4-cp" data-scale="0.7"></div>
+
+<ol class="steps">
+<li class="fragment fade-out" data-fragment-index="0">Each B4 controller trusts what the one upstream of it says</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="b4br b4-bundle">During an upgrade, a WAN bundle moves between B4BRs, so link config and routing <b>briefly disagree</b></li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="gw gw-topo" data-fail="topo">That triggers a Topology Modeler bug: some prefixes now appear to <b>originate in two clusters</b></li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="topo-te bwe" data-fail="bwe">BwE assumes a prefix has one origin, so it concludes <b>all of B4 has failed</b></li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="shift b2br">BwE moves B4 traffic for several metros onto B2, which <b>overloads</b></li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="topo bwe b4br b4-bundle"><b>Fail open:</b> before believing "all of B4 failed", cross-check with probes or BGP feeds, and keep forwarding on the last good state</li>
+</ol>
+
+Note:
+Control-plane category: cascade of control-plane elements.
+A transient inconsistency during a routine upgrade became a WAN-wide traffic shift.
+
+---
+
+<!-- .slide: class="principle" -->
+
 ## Fail open
 
 - When a control plane dies, **keep the last good forwarding state**
@@ -381,17 +346,76 @@ Open problems: detecting that a switch has failed open, and having healthy peers
 
 ---
 
-## Prevent, and recover fast
+## Risk-1: the 30% that was really 50%
+
+<p class="lead">MOp: power off 30% of a fabric's switches, restore, repeat (30+ hours)</p>
+
+<div class="bars">
+<div class="bar"><span>Estimated loss</span><i style="--v:30%"></i><b>~30%</b></div>
+<div class="bar bad fragment"><span>Actual loss</span><i style="--v:55%"></i><b>&gt;50%</b></div>
+</div>
+
+- Estimated as safe, so services were **not drained**
+- **Risk-2:** splitting a B4BR, the estimate was off by 2×, *and* failures elsewhere sent more traffic through it
+
+<p class="lesson fragment"><b>Assess risk continuously:</b> at every step of the MOp, using the control plane's own model of the fabric</p>
+
+Note:
+Management-plane category: risk assessment failure.
+Capacity in a multistage fabric depends on its topology and power design, not just on what fraction of hardware is off.
+Early rule of thumb: losing more than 50% of capacity is risky, because the network is provisioned for a single failure.
+Coarse estimates like this were later replaced by an automated tool.
+
+---
+
+<!-- .slide: class="principle" -->
+
+## An ounce of prevention
 
 - Assess risk **continuously**, at every MOp step, for drains *and* undrains
-- Easier on in-house B4 and clusters than on vendor B2, which is a black box
-- Canaries: 0.1% of ToRs in a small cluster, then more, then a bigger cluster, monitoring for days at each stage
-- Recovery is slow when operators **chase the wrong anomaly** or monitoring has gaps
-- Over-1: both monitoring collectors were inside the cluster that failed
+- Build risk assessment into the control plane, using the same state and algorithms
+- Easier on in-house B4 and clusters than on vendor B2, which is a black box; when unsure, overestimate the risk
+- **Canaries:** 0.1% of ToRs in a small cluster, then more, then a bigger cluster, monitoring for days at each stage
+
+Note:
+Risk assessments went wrong from bad capacity or demand estimates, the network changing between assessment and MOp (Risk-2), intermediate MOp states, and not knowing about concurrent MOps.
+Replicated controllers like the B4 Gateway are updated one replica at a time while watching consensus between replicas.
+
+---
+
+<!-- .slide: class="case" -->
+
+## Over-1: the outage nobody could see
+
+<div class="net-slot" data-net="fabric-cp" data-scale="0.7"></div>
+
+<ol class="steps">
+<li class="fragment fade-out" data-fragment-index="0">A cluster fabric, with its monitoring collectors</li>
+<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="sw-3">A link is drained by lowering its preference, so it <b>still carries traffic</b> while bit-error tests make it drop packets</li>
+<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="ofc sw">OFAs lose their OFC and fail over through an OpenFlow frontend, which first does a <b>reverse DNS lookup</b></li>
+<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="fc ofc ra">The lookups' packets die on the bad link; blocked threads hit the <b>OS thread limit</b> and the whole control plane fails</li>
+<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="mon">Both monitoring collectors were <b>inside this cluster</b>, so operators were blind for a long time</li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="mon-ext"><b>Recover fast:</b> collect from two topologically distinct clusters, so a failure can't blind its own monitoring</li>
+</ol>
+
+Note:
+Data-plane category: device resource overruns.
+Drains come in several strengths (lower preference, infinite cost, disable the interface). Lowering preference is the least risky and fastest to undo, but its semantics surprised operators here.
+
+---
+
+<!-- .slide: class="principle" -->
+
+## Recover fast
+
+- Root-causing can take hours, while a whole cluster sits drained
+- Operators **chase the wrong anomaly**: a big network always has something odd going on
+- Monitoring gaps: probes miss paths, counters miss transients like link flaps
+- Put collectors in **two topologically distinct clusters**
+- Next: automated root-cause diagnosis
 
 Note:
 Operators root-cause failures using an active path-probing system (similar to Pingmesh, our other paper) and passive per-device counters.
-Over-1: a drained link under bit-error testing still carried traffic. OFAs lost their OFC, the failover's reverse DNS lookups blocked, and the OS thread limit took down the whole control plane.
 
 ---
 

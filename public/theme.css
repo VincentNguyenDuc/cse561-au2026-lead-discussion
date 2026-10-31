@@ -10,6 +10,7 @@
   --heading: #f3f7ff;
   --accent: #4f8cff;
   --accent-light: #8ec5ff;
+  --ok: #4ade80;
 
   --r-background-color: var(--bg);
   --r-main-font: "Inter", system-ui, sans-serif;
@@ -405,4 +406,35 @@
 
 .reveal p.lead {
   font-size: 0.8em;
+}
+
+/* Struck-out fragment fades back: <span class="fragment strike"> */
+.reveal .fragment.strike.visible {
+  color: var(--muted);
+}
+
+/* Principle slide: <!-- .slide: class="principle" --> */
+.reveal section.principle h2::before {
+  content: "Principle";
+  display: block;
+  margin-bottom: 0.3em;
+  font-size: 0.35em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ok);
+}
+
+/* Lesson callout: <p class="lesson"> */
+.reveal p.lesson {
+  margin: 0.8em 0 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid var(--ok);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+  font-size: 0.6em;
+}
+
+.reveal p.lesson b {
+  color: var(--ok);
 }
