@@ -134,28 +134,28 @@
         `<div class="compact">${title(plane + ' plane')}${bars(stacked(rows), 13)}</div>`).join('') + '</div>';
     },
 
+    // Figure 5: all three networks on one log-scale CDF
     duration() {
-      const W = 300, H = 210, L = 40, R = 12, T = 30, B = 30;
+      const W = 720, H = 340, L = 64, R = 16, T = 10, B = 52;
       const pw = W - L - R, ph = H - T - B, span = 4.2;
       const x = m => L + Math.log10(m) / span * pw;
       const y = f => T + (1 - f) * ph;
-      const at = (pts, m) => Math.max(0, ...pts.filter(p => p[0] <= m).map(p => p[1]));
-      const ticks = [[1, '1 min'], [10, '10 min'], [60, '1 h'], [1440, '1 day'], [10080, '1 wk']];
-      return '<div class="cdfs">' + NETS.map(net => {
+      const curves = NETS.map(net => {
         const pts = DURATION[net];
-        const share = Math.round((at(pts, 100) - at(pts, 10)) * 100);
-        const d = `M${x(pts[0][0])} ${y(0)}` + pts.map(([m, f], i) => (i ? `H${x(m)}` : '') + `V${y(f)}`).join('') + `H${x(10 ** span)}`;
+        const d = `M${x(pts[0][0])} ${y(0)}` + pts.map(([m, f], i) => (i ? `H${x(m)}` : '') + `V${y(f)}`).join('');
         const hits = pts.map(([m, f]) => `<circle cx="${x(m)}" cy="${y(f)}" r="7" fill="transparent">` +
           `<title>${Math.round(f * 100)}% of ${net} failures resolved within ${m < 120 ? Math.round(m) + ' min' : Math.round(m / 60) + ' h'}</title></circle>`).join('');
-        return `<div class="cdf"><div class="ctitle"><i style="background:${COLOR[net]}"></i>${net} <span>n = ${TOTAL[net]}</span></div>` +
-          `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${net}: about ${share}% of failures lasted 10 to 100 minutes">` +
-          `<rect x="${x(10)}" y="${T}" width="${x(100) - x(10)}" height="${ph}" fill="#8fa3cf" fill-opacity="0.12"/>` +
-          `<text class="band" x="${(x(10) + x(100)) / 2}" y="${T - 8}">≈${share}% here</text>` +
-          [0, 0.5, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${y(f)}" y2="${y(f)}" class="grid"/>` +
-            `<text class="tick" x="${L - 6}" y="${y(f) + 4}" text-anchor="end">${f * 100}%</text>`).join('') +
-          ticks.map(([m, t]) => `<text class="tick" x="${x(m)}" y="${H - 8}" text-anchor="middle">${t}</text>`).join('') +
-          `<path d="${d}" fill="none" stroke="${COLOR[net]}" stroke-width="2" stroke-linejoin="round"/>${hits}</svg></div>`;
-      }).join('') + '</div>';
+        return `<path d="${d}" fill="none" stroke="${COLOR[net]}" stroke-width="2.5" stroke-linejoin="round"/>${hits}`;
+      }).join('');
+      return legend(NETS) + '<div class="cdf">' +
+        `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="CDF of failure durations by network; B4 has the longest tail">` +
+        [0, 0.25, 0.5, 0.75, 1].map(f => `<line x1="${L}" x2="${W - R}" y1="${y(f)}" y2="${y(f)}" class="grid"/>` +
+          `<text class="tick" x="${L - 8}" y="${y(f) + 5}" text-anchor="end">${f.toFixed(2)}</text>`).join('') +
+        [1, 10, 100, 1000, 10000].map(m => `<line x1="${x(m)}" x2="${x(m)}" y1="${T}" y2="${T + ph}" class="grid"/>` +
+          `<text class="tick" x="${x(m)}" y="${T + ph + 22}" text-anchor="middle">${m}</text>`).join('') +
+        `<text class="axis" x="${L + pw / 2}" y="${H - 4}" text-anchor="middle">Duration (minutes, log scale)</text>` +
+        `<text class="axis" transform="translate(16 ${T + ph / 2}) rotate(-90)" text-anchor="middle">Fraction of failure events</text>` +
+        curves + '</svg></div>';
     },
   };
 

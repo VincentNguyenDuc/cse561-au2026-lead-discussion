@@ -258,7 +258,7 @@ High/low loss is split using the same loss thresholds as the availability target
 
 <div class="chart" data-chart="duration"></div>
 
-<p class="caption">Time from discovery to repair. Shaded: 10–100 minutes. The budget for high-priority traffic is a few <em>minutes per month</em>.</p>
+<p class="caption">Time from discovery to repair. Most take 10–100 minutes; the budget for high-priority traffic is a few <em>minutes per month</em>.<br><em>Curves drawn by Claude to mimic the shape of the paper's Figure 5, not actual data.</em></p>
 
 Note:
 Discrepancy worth raising: the text says about 80% of failures lasted 10–100 minutes, but reading Figure 5 gives roughly half (B2 about two-thirds, clusters and B4 under half).

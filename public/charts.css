@@ -191,16 +191,11 @@
   border-radius: 4px;
 }
 
-/* Duration CDFs, one panel per network */
-.reveal .chart .cdfs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
+/* Duration CDF, all networks overlaid */
 .reveal .chart .cdf svg {
   display: block;
   width: 100%;
+  max-width: 760px;
   height: auto;
 }
 
@@ -214,11 +209,9 @@
   fill: var(--muted);
 }
 
-.reveal .chart .cdf .band {
-  font-size: 13px;
-  font-weight: 600;
-  text-anchor: middle;
-  fill: var(--text);
+.reveal .chart .cdf .axis {
+  font-size: 14px;
+  fill: var(--muted);
 }
 
 /* Hover details */
