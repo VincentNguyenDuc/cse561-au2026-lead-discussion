@@ -514,6 +514,31 @@ Operators root-cause failures using an active path-probing system (similar to Pi
 
 ---
 
+<!-- .slide: class="case" -->
+
+## Nine years later: Google Cloud, June 2025
+
+<p class="lead">Service Control checks API requests against quota and policy. One policy change with blank fields crashed it worldwide.</p>
+
+| Principle | What happened |
+|---|---|
+| Canaries | Rolled out by region, but the bad path <strong>never ran</strong> |
+| Contain the radius | Bad data went <strong>global within seconds</strong> |
+| Fail open | Null pointer, crash loop, no feature flag |
+| Big red button | <strong>Worked:</strong> fully rolled out within 40 min |
+| Recover fast | No backoff, restart herd: ~2h40m in us-central1 |
+
+<p class="lesson fragment"><b>For discussion:</b> Google published these principles in 2016. Why did this still happen?</p>
+
+Note:
+Source: Google Cloud incident report, status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW
+Beyond the readings. This was an API management and control-plane failure, not a network failure, so the principles apply by analogy.
+Timeline: the code shipped May 29. The bad policy change landed June 12 around 10:45am PDT. The status page lists the incident as 10:51 to 18:18, about 7.5 hours including residual impact.
+The red button shipped with the code. It was ready about 25 minutes in, and recovery began with the smaller regions first.
+Google's report says a feature flag would have caught this in staging. It also plans to modularize Service Control so that it "fails open", the paper's principle. That is a planned action with no date.
+
+---
+
 <!-- .slide: class="section" -->
 
 ## Discussion
