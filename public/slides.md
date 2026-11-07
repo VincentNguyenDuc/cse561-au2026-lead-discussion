@@ -512,6 +512,8 @@ Operators root-cause failures using an active path-probing system (similar to Pi
 
 > Touching the network breaks it. So touch it often, and make touching it safe.
 
+- Is "upgrade continuously" in network a lesson for everyone, or only with Google-scale automation?
+
 ---
 
 <!-- .slide: class="case" -->
@@ -536,19 +538,3 @@ Beyond the readings. This was an API management and control-plane failure, not a
 Timeline: the code shipped May 29. The bad policy change landed June 12 around 10:45am PDT. The status page lists the incident as 10:51 to 18:18, about 7.5 hours including residual impact.
 The red button shipped with the code. It was ready about 25 minutes in, and recovery began with the smaller regions first.
 Google's report says a feature flag would have caught this in staging. It also plans to modularize Service Control so that it "fails open", the paper's principle. That is a planned action with no date.
-
----
-
-<!-- .slide: class="section" -->
-
-## Discussion
-
----
-
-## Discussion
-
-- B4's failures are mostly control-plane. Does centralized SDN trade one kind of failure for another?
-- In Casc-1, the "conservative" reaction caused the outage. When should a controller fail open, and when fail safe?
-- Only unique failures, in the authors' own categories: what can we conclude about frequency?
-- Is "upgrade continuously" a lesson for everyone, or only with Google-scale automation?
-- Two vendors on purpose: does heterogeneity buy more availability than its complexity costs?
