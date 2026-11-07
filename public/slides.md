@@ -538,3 +538,13 @@ Beyond the readings. This was an API management and control-plane failure, not a
 Timeline: the code shipped May 29. The bad policy change landed June 12 around 10:45am PDT. The status page lists the incident as 10:51 to 18:18, about 7.5 hours including residual impact.
 The red button shipped with the code. It was ready about 25 minutes in, and recovery began with the smaller regions first.
 Google's report says a feature flag would have caught this in staging. It also plans to modularize Service Control so that it "fails open", the paper's principle. That is a planned action with no date.
+
+---
+
+<!-- .slide: class="principle proposed" -->
+
+## Failures are expected
+
+<p class="lead">Be calm, and go fix it.</p>
+
+<p class="lesson fragment"><b>For discussion:</b> What's the worst network outage you've been through, or had to fix?</p>

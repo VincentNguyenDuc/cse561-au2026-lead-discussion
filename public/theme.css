@@ -451,6 +451,10 @@
   color: var(--ok);
 }
 
+.reveal section.principle.proposed h2::before {
+  content: "Proposed principle";
+}
+
 /* Lesson callout: <p class="lesson"> */
 .reveal p.lesson {
   margin: 0.8em 0 0;
