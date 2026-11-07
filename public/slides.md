@@ -512,7 +512,7 @@ Operators root-cause failures using an active path-probing system (similar to Pi
 
 > Touching the network breaks it. So touch it often, and make touching it safe.
 
-- Is "upgrade continuously" in network a lesson for everyone, or only with Google-scale automation?
+<p class="lesson fragment"><b>For discussion:</b> Is "upgrade continuously" in network a lesson for everyone, or only with Google-scale automation?</p>
 
 ---
 
