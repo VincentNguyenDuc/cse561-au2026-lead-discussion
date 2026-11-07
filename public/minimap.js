@@ -1,4 +1,4 @@
-// Slide minimap: a sidebar listing every slide, toggled with the button or "M"
+// Slide minimap: a sidebar of live slide thumbnails, toggled with the button or "M"
 (function () {
   const nav = document.getElementById('minimap');
   const list = nav.querySelector('ol');
@@ -12,17 +12,47 @@
     Reveal.layout();
   }
 
+  // A copy of the slide as it first appears, before any fragments. The wrappers carry the
+  // "reveal" and "slides" classes so the deck's styles apply to it.
+  function thumbnail(slide) {
+    const copy = slide.cloneNode(true);
+    copy.querySelectorAll('aside.notes').forEach(el => el.remove());
+    copy.querySelectorAll('.fragment').forEach(el => el.classList.remove('visible', 'current-fragment'));
+    copy.classList.remove('past', 'future');
+    copy.classList.add('present');
+    ['style', 'hidden', 'aria-hidden'].forEach(attr => copy.removeAttribute(attr));
+
+    const stage = document.createElement('div');
+    stage.className = 'reveal';
+    stage.inert = true;
+    stage.innerHTML = '<div class="slides"></div>';
+    stage.firstChild.appendChild(copy);
+
+    const thumb = document.createElement('span');
+    thumb.className = 'thumb';
+    thumb.appendChild(stage);
+    return thumb;
+  }
+
   function build() {
     Reveal.getSlides().forEach((slide, i) => {
       const { h, v } = Reveal.getIndices(slide);
       const heading = slide.querySelector('h1, h2, h3');
+      const title = heading ? heading.textContent : 'Slide ' + (i + 1);
       const li = document.createElement('li');
-      if (v > 0) li.classList.add('sub');
       const button = document.createElement('button');
-      button.innerHTML = '<span class="num"></span><span class="label"></span>';
-      button.querySelector('.num').textContent = i + 1;
-      button.querySelector('.label').textContent = heading ? heading.textContent : 'Slide ' + (i + 1);
-      button.addEventListener('click', () => Reveal.slide(h, v));
+      button.title = title;
+      button.setAttribute('aria-label', (i + 1) + ': ' + title);
+      const thumb = thumbnail(slide);
+      const num = document.createElement('span');
+      num.className = 'thumb-num';
+      num.textContent = i + 1;
+      thumb.appendChild(num);
+      button.appendChild(thumb);
+      button.addEventListener('click', () => {
+        Reveal.slide(h, v);
+        button.blur();
+      });
       li.appendChild(button);
       list.appendChild(li);
     });
