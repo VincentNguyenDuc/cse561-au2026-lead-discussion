@@ -70,50 +70,24 @@ The fallback in step 7 is exactly what overloads B2 in CPN-1 and Casc-1 later.
 
 ## Why two WANs?
 
-<div class="cols2">
-<div><h3>B2 has to be ordinary</h3><ul><li>Peers with many networks and vendors, so it needs <strong>many protocols</strong></li><li>Reaches users everywhere, so its topology is <strong>dense</strong></li><li>Carries user traffic, so it needs the <strong>highest availability</strong></li></ul></div>
-<div><h3>B4 can break the rules</h3><ul><li><strong>Elastic</strong> bulk copies can live with a temporary bandwidth cut</li><li>Only a <strong>few dozen</strong> sites, so central control works</li><li>Google owns <strong>both ends</strong>, so it rate-limits at the edge instead of overprovisioning</li><li>Typical WANs run at 30–40%, which costs <strong>2–3×</strong>; B4 runs busy links near 100%</li></ul></div>
-</div>
+| | B4 can break the rules | B2 has to be ordinary |
+|---|---|---|
+| Carries | Data center ↔ data center: **elastic** bulk copies | Users ↔ data centers, Internet peering: needs the **highest availability** |
+| Sites | A **few dozen** data centers, so central control works | **Dense**: border, core and edge routers |
+| Hardware | Merchant-silicon switches | Vendor routers, **many protocols** |
+| Routing and TE | Central TE server, tunnels | IS-IS, eBGP, MPLS tunnels via RSVP |
+| Priorities | Google owns **both ends**: priority queues, BwE rate-limits at the edge | Traffic marking, vendor QoS, low-priority tunnels |
+| Utilization | Busy links near **100%** | Typical WANs run at 30–40%, costing **2–3×** |
 
-<p class="caption">Jain et al., "B4: Experience with a Globally-Deployed Software Defined WAN", SIGCOMM 2013 (reference [18])</p>
+<p class="caption">B4 design rationale from Jain et al., "B4: Experience with a Globally-Deployed Software Defined WAN", SIGCOMM 2013 (reference [18])</p>
 
 Note:
 B4 was originally designed as a low-cost backend backbone for bulk copy traffic, and later became critical infrastructure.
 By 2013 B4 carried more than 90% of internal application traffic, and more traffic than the public-facing WAN.
 B4's traffic classes, in increasing volume and decreasing priority: user data copies, remote storage access, large-scale data pushes.
 This explains later findings: B4 failures last longer (no high-priority traffic) and are mostly control-plane (a large, new software stack).
-
----
-
-## B4 vs B2
-
-| | B4 | B2 |
-|---|---|---|
-| Carries | Data center ↔ data center | Users ↔ data centers, Internet peering |
-| Sites | A few dozen data centers | Dense: border, core and edge routers |
-| Hardware | Merchant-silicon switches | Vendor routers |
-| Routing and TE | Central TE server, tunnels | IS-IS, eBGP, MPLS tunnels via RSVP |
-| Priorities | Priority queues; BwE admits and rate-limits at the edge | Traffic marking, vendor QoS, low-priority tunnels |
-
-Note:
 B2 keeps high-priority traffic on the shortest path by mapping low-priority traffic into low-priority tunnels. MPLS auto-bandwidth resizes tunnels as demand changes.
 B2 uses route reflection to scale BGP.
-
----
-
-## Services, priorities and draining
-
-- **Internal** customers: distributed storage and batch computation, e.g. rebuilding search indices
-- **User-facing** services: front-ends near users (proxy + cache) send requests to back-ends
-- Load balancers choose both, so operators can **drain** a cluster: steer traffic away before or during trouble
-- Priorities: **user-facing high, internal low**, enforced by both WANs
-
-> Draining is the main escape hatch. It shows up in almost every case study.
-
-Note:
-DNS load balancing sends users to a front-end; a load balancer tracking backend load picks the back-end.
-Drains cost capacity, and resuming service afterwards can take a long time, e.g. while storage replication catches up.
-A MOp judged high risk drains the affected services first. Risk-1 is a MOp that should have been drained and wasn't.
 
 ---
 
@@ -190,6 +164,7 @@ Attribution is a judgement call. A link failure that triggers a control-plane bu
 - **Tight targets vs. slow upgrades:** a border router upgrade can take 8+ hours, so either drain (costs capacity) or upgrade in place (fragile)
 
 Note:
+Drain: load balancers steer traffic away from a cluster or link before work on it. A MOp judged high risk drains the affected services first.
 Availability is measured per minute. B4 uses its TE instrumentation; B2 and clusters use cluster-to-cluster pings, a system similar to Pingmesh.
 A cluster is unavailable for a traffic class if loss from all other clusters exceeds a threshold of 0.1–2%.
 
