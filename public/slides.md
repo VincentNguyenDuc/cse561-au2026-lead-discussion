@@ -172,10 +172,13 @@ A cluster is unavailable for a traffic class if loss from all other clusters exc
 - Capacity planning, redundant routers, disjoint fiber and power
 - Every controller replicated with failover; WAN replicas spread geographically
 - Services register traffic priorities; BwE marks and rate-limits them
-- Regression tests, canaries, disaster drills
+- Regression tests (even "Testing on the Toilet" posters), canaries, disaster drills
 - Every MOp documented with steps, duration and a risk assessment
 
 > …and still: 103 high-impact failures in two years.
+
+Note:
+Many of you have been to a Google office: they even put up posters about how to write good tests, called "Testing on the Toilet" because they hang in the bathrooms.
 
 ---
 
