@@ -127,6 +127,21 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* Slide with a large table: <!-- .slide: class="compact" --> */
+.reveal section.compact h2 {
+  font-size: 1.15em;
+  margin-bottom: 0.5em;
+}
+
+.reveal section.compact table {
+  font-size: 0.6em;
+}
+
+.reveal section.compact table th,
+.reveal section.compact table td {
+  padding: 0.3em 0.6em;
+}
+
 /* Blockquotes */
 .reveal blockquote {
   width: auto;

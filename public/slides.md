@@ -65,6 +65,8 @@ The fallback in step 7 is exactly what overloads B2 in CPN-1 and Casc-1 later.
 
 ---
 
+<!-- .slide: class="compact" -->
+
 ## Why two WANs?
 
 | | B4 can break the rules | B2 has to be ordinary |
