@@ -295,29 +295,8 @@ Note:
 Data-plane category: control plane network failure.
 Two timers that were each reasonable on their own interacted badly. The fallback to B2 then turned one failure into a second one.
 The lesson view shows k = 2: one virtual router fails, the other keeps forwarding.
-This pairing is ours: the paper cites BugAuto-1 for containment. CPN-1 fits because all three OFC replicas failed together, so replication alone didn't help.
+This pairing is ours (the paper uses a different failure for containment). CPN-1 fits because all three OFC replicas failed together, so replication alone didn't help.
 Open question: the trigger was a CPN router shared by the whole B4BR. If the k virtual routers share that CPN, they could all split-brain at once.
-
----
-
-<!-- .slide: class="case" -->
-
-## BugAuto-1: automation vs. a new abstraction
-
-<div class="net-slot" data-net="topology" data-scale="0.62"></div>
-
-<ol class="steps">
-<li class="fragment fade-out" data-fragment-index="0">Each cluster reaches both WANs through its CAR</li>
-<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="car-1">A script upgrades control-plane software across the CAR's 4 blocks, <b>draining and undraining links in order</b></li>
-<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="car-1 up-1">But <b>supertrunking</b> (one logical link across several switches) was recently enabled here, and it needs a different order</li>
-<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="car-1 up-1 cluster-1">BGP adjacencies never came back: the cluster was <b>cut off from both WANs</b></li>
-<li class="fragment current-visible lesson" data-fragment-index="3" data-n="✓" data-reset data-ok="car-1 up-1"><b>Big red button:</b> keep the old trunk abstraction alive, with a switch to fall back to it when the new one breaks</li>
-</ol>
-
-Note:
-Management-plane category: bug in management-plane automation.
-The control plane evolved (supertrunking) but the management plane's scripts didn't.
-Automation raised the level of abstraction and improved availability overall, but it also adds a layer that can fail at scale.
 
 ---
 
@@ -325,13 +304,13 @@ Automation raised the level of abstraction and improved availability overall, bu
 
 ## Defense in depth
 
-- **Contain the failure radius:** split a B4BR or CAR into *k* virtual routers, each with its own control plane
-  - One failure costs 1/*k* of capacity, and a virtual router is the unit for MOps
-- **Fallbacks:** B4 → B2 and back; TE → plain IP routing
-- **Big red buttons:** every new feature keeps the old one alive, plus a switch to go back
+- **Contain the radius:** *k* virtual routers, so a failure costs 1/*k*
+- **Fallbacks:** B4 → B2; TE → plain IP routing
+- **Big red buttons:** keep the old feature, with a switch back
 
 Note:
-Concurrent failure of *all* replicas of a controller is not uncommon (BugAuto-1), so replication alone isn't enough.
+Split a B4BR or CAR into k virtual routers, each with its own control plane. A virtual router is also the unit for MOps.
+Concurrent failure of *all* replicas of a controller is not uncommon (CPN-1), so replication alone isn't enough.
 Partitioning alternative: "color" links and switches and give each color its own control plane.
 Fallbacks can backfire: in both CPN-1 and Casc-1, falling back to B2 overloaded it.
 
@@ -362,13 +341,16 @@ A routing config change had made full table updates much more frequent, which ma
 
 ## Maintain consistency
 
-- **Within the control plane:** track equivalence; RA vs. OFC route counts would have flagged Consis-1
-- **Data vs. control:** don't advertise routes before they're installed
-- **Management:** check fabric state after every MOp step; all-or-nothing config changes
-- **Invariants:** an unwritten rule (anycast prefixes need path length 3) was broken, and internal DNS went down
-- **Positive *and* negative:** a wildcard drained hundreds of devices instead of two, so now large MOps need both a "drain these" list and a "keep these" list
+- **Track equivalence** between control-plane elements
+- **Don't advertise** routes before they're installed
+- **Check state** after every MOp step
+- **Make invariants explicit**, and check them
+- **Positive *and* negative** lists: "drain these" and "keep these"
 
 Note:
+RA vs. OFC route counts would have flagged Consis-1. Config changes should be all-or-nothing.
+Negative lists: a wildcard once drained hundreds of devices instead of two.
+Invariants: an unwritten rule (anycast prefixes need path length 3) was broken, and internal DNS went down.
 Many invariants are implicit: CARs connect to 2 B2BRs, OFCs connect to 2 CPN routers, at least one OFC must be running.
 Monitoring should rank invariant violations by risk instead of flooding operators with alarms.
 
@@ -399,12 +381,12 @@ A transient inconsistency during a routine upgrade became a WAN-wide traffic shi
 
 ## Fail open
 
-- When a control plane dies, **keep the last good forwarding state**
-- Works if fixing the control plane is faster than the next hardware failure
-- Don't trust surprising updates: Casc-1's dual origin could have been checked against probes or BGP feeds
-- Another time, the TE Server **invalidated all of B4** over one overlapping prefix from a decommissioned cluster
+- Control plane dies: **keep the last good forwarding state**
+- **Don't trust surprising updates:** cross-check before acting
 
 Note:
+Fail open works if fixing the control plane is faster than the next hardware failure.
+Casc-1's dual origin could have been checked against probes or BGP feeds. Another time, the TE Server invalidated all of B4 over one overlapping prefix from a decommissioned cluster.
 This is in tension with being conservative. In both examples the controller's "safe" reaction caused the outage.
 Open problems: detecting that a switch has failed open, and having healthy peers keep using it.
 
@@ -436,36 +418,17 @@ Coarse estimates like this were later replaced by an automated tool.
 
 ## An ounce of prevention
 
-- Assess risk **continuously**, at every MOp step, for drains *and* undrains
-- Build risk assessment into the control plane, using the same state and algorithms
-- Easier on in-house B4 and clusters than on vendor B2, which is a black box; when unsure, overestimate the risk
-- **One management stack, diverse systems:** shared checks apply everywhere, while different vendors and teams keep faults uncorrelated
-- **Canaries:** 0.1% of ToRs in a small cluster, then more, then a bigger cluster, monitoring for days at each stage
+- Assess risk **at every MOp step**, inside the control plane
+- When unsure, **overestimate** the risk
+- **One management stack, diverse systems** underneath
+- **Canaries:** start small, watch for days, then grow
 
 Note:
+Risk is checked for drains and undrains, using the control plane's own state and algorithms. Easier on in-house B4 and clusters than on vendor B2, which is a black box.
+One management stack, diverse systems: shared checks apply everywhere, while different vendors and teams keep faults uncorrelated.
+Canaries: 0.1% of ToRs in a small cluster, then more, then a bigger cluster.
 Risk assessments went wrong from bad capacity or demand estimates, the network changing between assessment and MOp (Risk-2), intermediate MOp states, and not knowing about concurrent MOps.
 Replicated controllers like the B4 Gateway are updated one replica at a time while watching consensus between replicas.
-
----
-
-<!-- .slide: class="case" -->
-
-## Over-1: the outage nobody could see
-
-<div class="net-slot" data-net="fabric-cp" data-scale="0.7"></div>
-
-<ol class="steps">
-<li class="fragment fade-out" data-fragment-index="0">A cluster fabric, with its monitoring collectors</li>
-<li class="fragment current-visible" data-fragment-index="0" data-n="1" data-hl="sw-3">A link is drained by lowering its preference, so it <b>still carries traffic</b> while bit-error tests make it drop packets</li>
-<li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="ofc sw">OFAs lose their OFC and fail over through an OpenFlow frontend, which first does a <b>reverse DNS lookup</b></li>
-<li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="fc ofc ra">The lookups' packets die on the bad link; blocked threads hit the <b>OS thread limit</b> and the whole control plane fails</li>
-<li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="mon">Both monitoring collectors were <b>inside this cluster</b>, so operators were blind for a long time</li>
-<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="mon-ext"><b>Recover fast:</b> the rule was to collect from two topologically distinct clusters; here both sat inside the failed one</li>
-</ol>
-
-Note:
-Data-plane category: device resource overruns.
-Drains come in several strengths (lower preference, infinite cost, disable the interface). Lowering preference is the least risky and fastest to undo, but its semantics surprised operators here.
 
 ---
 
@@ -473,13 +436,14 @@ Drains come in several strengths (lower preference, infinite cost, disable the i
 
 ## Recover fast
 
-- Root-causing can take hours, while a whole cluster sits drained
-- Operators **chase the wrong anomaly**: a big network always has something odd going on
-- Monitoring gaps: probes miss paths, counters miss transients like link flaps
-- Collectors belong in **two topologically distinct clusters**, an invariant Over-1 broke
-- Next: automated root-cause diagnosis
+- Root-causing takes **hours**, while a cluster sits drained
+- Operators **chase the wrong anomaly**
+- Monitoring has gaps, and must not fail with what it watches
+- Next: **automated root-cause diagnosis**
 
 Note:
+A big network always has something odd going on. Probes miss paths, counters miss transients like link flaps.
+Collectors belong in two topologically distinct clusters: once both sat inside the failed cluster, and operators were blind.
 Operators root-cause failures using an active path-probing system (similar to Pingmesh, our other paper) and passive per-device counters.
 
 ---
