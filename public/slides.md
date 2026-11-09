@@ -20,9 +20,6 @@ Lead discussion: Vincent Nguyen, Cheng Peng
 <blockquote><span class="fragment strike" data-fragment-index="0">If it works, don't touch it.</span> <span class="fragment" data-fragment-index="0">Touch it often, and make touching it safe.</span></blockquote>
 
 Note:
-Click once: the old sysadmin rule gets struck out and replaced by the paper's answer.
-The rest of the talk is the evidence for these lines.
-MOp = management operation: upgrades, config changes, drains, replacing hardware. Google schedules ~585 a week.
 The conclusion is counter-intuitive: the data says change causes failures, yet the answer is more change, made small and automated.
 
 ---
@@ -293,6 +290,8 @@ Note:
 Data-plane category: control plane network failure.
 Two timers that were each reasonable on their own interacted badly. The fallback to B2 then turned one failure into a second one.
 The lesson view shows k = 2: one virtual router fails, the other keeps forwarding.
+This pairing is ours: the paper cites BugAuto-1 for containment. CPN-1 fits because all three OFC replicas failed together, so replication alone didn't help.
+Open question: the trigger was a CPN router shared by the whole B4BR. If the k virtual routers share that CPN, they could all split-brain at once.
 
 ---
 
@@ -329,6 +328,7 @@ Automation raised the level of abstraction and improved availability overall, bu
 Note:
 Concurrent failure of *all* replicas of a controller is not uncommon (BugAuto-1), so replication alone isn't enough.
 Partitioning alternative: "color" links and switches and give each color its own control plane.
+Fallbacks can backfire: in both CPN-1 and Casc-1, falling back to B2 overloaded it.
 
 ---
 
@@ -381,7 +381,7 @@ Monitoring should rank invariant violations by risk instead of flooding operator
 <li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="gw gw-topo" data-fail="topo">That triggers a Topology Modeler bug: some prefixes now appear to <b>originate in two clusters</b></li>
 <li class="fragment current-visible" data-fragment-index="2" data-n="3" data-hl="topo-te bwe" data-fail="bwe">BwE assumes a prefix has one origin, so it concludes <b>all of B4 has failed</b></li>
 <li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="shift b2br">BwE moves B4 traffic for several metros onto B2, which <b>overloads</b></li>
-<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="topo bwe b4br b4-bundle"><b>Fail open:</b> before believing "all of B4 failed", cross-check with probes or BGP feeds, and keep forwarding on the last good state</li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="topo bwe b4br b4-bundle"><b>Fail open:</b> before acting on "all of B4 failed", cross-check with probes or BGP feeds, and degrade gracefully instead of shifting everything</li>
 </ol>
 
 Note:
@@ -397,7 +397,7 @@ A transient inconsistency during a routine upgrade became a WAN-wide traffic shi
 - When a control plane dies, **keep the last good forwarding state**
 - Works if fixing the control plane is faster than the next hardware failure
 - Don't trust surprising updates: Casc-1's dual origin could have been checked against probes or BGP feeds
-- Another time, the TE Server **invalidated all of B4** over one stale prefix
+- Another time, the TE Server **invalidated all of B4** over one overlapping prefix from a decommissioned cluster
 
 Note:
 This is in tension with being conservative. In both examples the controller's "safe" reaction caused the outage.
@@ -434,6 +434,7 @@ Coarse estimates like this were later replaced by an automated tool.
 - Assess risk **continuously**, at every MOp step, for drains *and* undrains
 - Build risk assessment into the control plane, using the same state and algorithms
 - Easier on in-house B4 and clusters than on vendor B2, which is a black box; when unsure, overestimate the risk
+- **One management stack, diverse systems:** shared checks apply everywhere, while different vendors and teams keep faults uncorrelated
 - **Canaries:** 0.1% of ToRs in a small cluster, then more, then a bigger cluster, monitoring for days at each stage
 
 Note:
@@ -454,7 +455,7 @@ Replicated controllers like the B4 Gateway are updated one replica at a time whi
 <li class="fragment current-visible" data-fragment-index="1" data-n="2" data-hl="ofc sw">OFAs lose their OFC and fail over through an OpenFlow frontend, which first does a <b>reverse DNS lookup</b></li>
 <li class="fragment current-visible" data-fragment-index="2" data-n="3" data-fail="fc ofc ra">The lookups' packets die on the bad link; blocked threads hit the <b>OS thread limit</b> and the whole control plane fails</li>
 <li class="fragment current-visible" data-fragment-index="3" data-n="4" data-fail="mon">Both monitoring collectors were <b>inside this cluster</b>, so operators were blind for a long time</li>
-<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="mon-ext"><b>Recover fast:</b> collect from two topologically distinct clusters, so a failure can't blind its own monitoring</li>
+<li class="fragment current-visible lesson" data-fragment-index="4" data-n="✓" data-reset data-ok="mon-ext"><b>Recover fast:</b> the rule was to collect from two topologically distinct clusters; here both sat inside the failed one</li>
 </ol>
 
 Note:
@@ -470,7 +471,7 @@ Drains come in several strengths (lower preference, infinite cost, disable the i
 - Root-causing can take hours, while a whole cluster sits drained
 - Operators **chase the wrong anomaly**: a big network always has something odd going on
 - Monitoring gaps: probes miss paths, counters miss transients like link flaps
-- Put collectors in **two topologically distinct clusters**
+- Collectors belong in **two topologically distinct clusters**, an invariant Over-1 broke
 - Next: automated root-cause diagnosis
 
 Note:
@@ -493,26 +494,23 @@ Operators root-cause failures using an active path-probing system (similar to Pi
 
 <!-- .slide: class="case" -->
 
-## Nine years later: Google Cloud, June 2025
+## Since the paper: Google still breaks
 
-<p class="lead">Service Control checks API requests against quota and policy. One policy change with blank fields crashed it worldwide.</p>
+| When | What broke | Lesson it echoes |
+|---|---|---|
+| Jun 2019 | A config change meant for one region hit several; control plane stopped, congestion slowed the fix | Contain the radius, recover fast |
+| Dec 2020 | Quota migration reported zero usage; login DB lost its quota, Gmail and YouTube down ~47 min | Assess risk |
+| Nov 2021 | Load balancer config bug hit an unpatched cluster mid-rollout; global 404s ~2h | Canaries |
+| Jun 2025 | Policy with blank fields went global in seconds; Service Control crashed, ~7h | Fail open, contain the radius |
 
-| Principle | What happened |
-|---|---|
-| Canaries | Rolled out by region, but the bad path <strong>never ran</strong> |
-| Contain the radius | Bad data went <strong>global within seconds</strong> |
-| Fail open | Null pointer, crash loop, no feature flag |
-| Big red button | <strong>Worked:</strong> fully rolled out within 40 min |
-| Recover fast | No backoff, restart herd: ~2h40m in us-central1 |
-
-<p class="lesson fragment"><b>For discussion:</b> Google published these principles in 2016. Why did this still happen?</p>
+<p class="lesson fragment"><b>For discussion:</b> Google published these principles in 2016. Why do they still happen?</p>
 
 Note:
-Source: Google Cloud incident report, status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW
-Beyond the readings. This was an API management and control-plane failure, not a network failure, so the principles apply by analogy.
-Timeline: the code shipped May 29. The bad policy change landed June 12 around 10:45am PDT. The status page lists the incident as 10:51 to 18:18, about 7.5 hours including residual impact.
-The red button shipped with the code. It was ready about 25 minutes in, and recovery began with the smaller regions first.
-Google's report says a feature flag would have caught this in staging. It also plans to modularize Service Control so that it "fails open", the paper's principle. That is a planned action with no date.
+Beyond the readings. Every one is a management operation: a config change, a migration, a rollout.
+Jun 2019: status.cloud.google.com/incident/cloud-networking/19009
+Dec 2020: status.cloud.google.com/incident/zall/20013 (not network, but same pattern)
+Nov 2021: status.cloud.google.com/incidents/6PM5mNd43NbMqjCZ5REh
+Jun 2025: status.cloud.google.com/incidents/ow5i3PPK96RduMcb1SsW
 
 ---
 
@@ -520,6 +518,6 @@ Google's report says a feature flag would have caught this in staging. It also p
 
 ## Failures are expected
 
-<p class="lead">Be calm, and go fix it.</p>
+<p class="lead">Be calm, go fix it, and learn from it.</p>
 
-<p class="lesson fragment"><b>For discussion:</b> What's the worst network outage you've been through, or had to fix?</p>
+<p class="lesson fragment"><b>For discussion:</b> What's the worst network outage you've been through, or had to fix, or even better created?</p>
