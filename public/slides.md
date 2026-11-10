@@ -8,6 +8,8 @@ Govindan et al. · SIGCOMM 2016
 
 Lead discussion: Vincent Nguyen, Cheng Peng
 
+[vincentnguyenduc.github.io/cse561-au2026-lead-discussion](https://vincentnguyenduc.github.io/cse561-au2026-lead-discussion/)
+
 ---
 
 ## TL;DR
